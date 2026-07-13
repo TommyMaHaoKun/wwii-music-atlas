@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Roaring Forties music atlas icon">
+  <defs>
+    <linearGradient id="bg" x1="12" x2="54" y1="8" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#182431"/>
+      <stop offset="0.54" stop-color="#0b1118"/>
+      <stop offset="1" stop-color="#070a0f"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="16" x2="50" y1="18" y2="49" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f0c58b"/>
+      <stop offset="1" stop-color="#c98f58"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <circle cx="32" cy="32" r="21" fill="#101922" stroke="url(#glow)" stroke-width="2"/>
+  <path d="M14 32h36M32 11c-5 5-8 12-8 21s3 16 8 21M32 11c5 5 8 12 8 21s-3 16-8 21" stroke="#efe4d0" stroke-opacity="0.24" stroke-width="1.4" fill="none"/>
+  <path d="M18 25c5-3 9-3 14 0s9 3 14 0M18 39c5 3 9 3 14 0s9-3 14 0" stroke="#efe4d0" stroke-opacity="0.18" stroke-width="1.4" fill="none"/>
+  <path d="M17 47c5-7 8-10 13-9 5 2 7-3 11-10" stroke="#d66b51" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M44 19v20c0 4-3 7-7 7-3 0-5-2-5-4s2-4 5-4c1 0 3 0 4 1V19h3Z" fill="#efe4d0"/>
+  <text x="20" y="30" fill="#f0c58b" font-family="Georgia, serif" font-size="15" font-weight="700">40</text>
+</svg>

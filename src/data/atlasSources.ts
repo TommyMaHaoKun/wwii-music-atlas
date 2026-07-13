@@ -1,0 +1,1376 @@
+import { eventEnhancementsById } from '@/data/eventEnhancements'
+import type { AudioClip, BibliographySection, EventImage, RelatedSong, SourceReference } from '@/data/ww2MusicAtlas'
+import { publicAssetPath } from '@/lib/publicAssets'
+
+export interface EntityMediaLinks {
+  sourceIds?: string[]
+  audioClipIds?: string[]
+  summaryZh?: string
+  summaryEn?: string
+  longDescriptionZh?: string
+  longDescriptionEn?: string
+  musicImpactZh?: string
+  musicImpactEn?: string
+  relatedSongs?: RelatedSong[]
+  historicalContextZh?: string
+  historicalContextEn?: string
+  representativeSongs?: RelatedSong[]
+  image?: EventImage
+}
+
+export function getPhaseReferenceKey(countryId: string, startYear: number) {
+  return `${countryId}:${startYear}`
+}
+
+export const sourceReferences: SourceReference[] = [
+  {
+    id: 'loc-recorded-sound',
+    title: 'Recorded Sound Research Center Collections',
+    archiveOrAuthor: 'Library of Congress',
+    year: '2026',
+    url: 'https://www.loc.gov/research-centers/recorded-sound/collections/',
+    kind: 'archive',
+    isPrimary: true,
+    noteZh: '美国国会图书馆录音馆藏总入口，可作为美国战前、战时与战后流行音乐传播的权威馆藏入口。',
+    noteEn: 'Library of Congress recorded-sound gateway used here as the main archival anchor for U.S. circulation and recording history.',
+  },
+  {
+    id: 'loc-soundtrack-wwii',
+    title: 'A Soundtrack of World War II',
+    archiveOrAuthor: 'Mark Hartsell / Library of Congress',
+    year: '2020',
+    url: 'https://blogs.loc.gov/loc/2020/10/a-soundtrack-of-world-war-ii/',
+    kind: 'essay',
+    isPrimary: true,
+    noteZh: '国会图书馆关于二战声音档案数字化的专题文章，适合支撑战时广播、军中娱乐与声音传播的叙述。',
+    noteEn: 'Library of Congress feature on its WWII sound preservation project, supporting wartime broadcasting and military circulation narratives.',
+  },
+  {
+    id: 'loc-vdisc-registry',
+    title: 'National Recording Registry: V-Disc and Wartime Entries',
+    archiveOrAuthor: 'Library of Congress',
+    year: '2009',
+    url: 'https://www.loc.gov/static/programs/national-recording-preservation-board/recording-registry/induction-years/2008.html',
+    kind: 'recording',
+    isPrimary: true,
+    noteZh: '国会图书馆国家录音注册表中含有 V-Disc 与战时广播条目，可用于支撑美军士气音乐与战时流通体系。',
+    noteEn: 'Library of Congress registry page containing wartime recordings and V-Disc context used for wartime morale and circulation references.',
+  },
+  {
+    id: 'britannica-benny-goodman',
+    title: 'Benny Goodman',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/biography/Benny-Goodman',
+    kind: 'biography',
+    isPrimary: true,
+    noteZh: '用于确认 Benny Goodman 在摇摆乐时代中的历史位置及其广播、舞厅与乐队传播背景。',
+    noteEn: 'Used to anchor Benny Goodman within the swing era and its broadcast and dance-band context.',
+  },
+  {
+    id: 'iwm-sound',
+    title: 'Sound Collections',
+    archiveOrAuthor: 'Imperial War Museums',
+    year: '2026',
+    url: 'https://www.iwm.org.uk/collections/sound',
+    kind: 'archive',
+    isPrimary: true,
+    noteZh: '帝国战争博物馆的声音馆藏总入口，适合支撑英国战时广播、前线慰问与声音记忆。',
+    noteEn: 'Imperial War Museums sound collections hub used here for wartime broadcasting, morale, and memory references in Britain.',
+  },
+  {
+    id: 'britannica-vera-lynn',
+    title: 'Vera Lynn',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/biography/Vera-Lynn',
+    kind: 'biography',
+    isPrimary: true,
+    noteZh: '用于确认 Vera Lynn 的“军中甜心”角色及其与战时广播、慰问演出的关系。',
+    noteEn: 'Used to confirm Vera Lynn’s role as the “Forces’ Sweetheart” and her relationship to wartime morale broadcasting.',
+  },
+  {
+    id: 'ushmm-degenerate-art',
+    title: '"Degenerate" Art',
+    archiveOrAuthor: 'United States Holocaust Memorial Museum',
+    year: '2026',
+    url: 'https://encyclopedia.ushmm.org/content/en/article/degenerate-art-1',
+    kind: 'museum',
+    isPrimary: true,
+    noteZh: '虽以“堕落艺术”展为题，但可作为纳粹文化管制与音乐审查背景的权威博物馆入口。',
+    noteEn: 'Used as a museum reference for Nazi cultural control and censorship, including the wider background around music suppression.',
+  },
+  {
+    id: 'kurt-weill-foundation',
+    title: 'About the Kurt Weill Foundation for Music',
+    archiveOrAuthor: 'Kurt Weill Foundation for Music',
+    year: '2026',
+    url: 'https://www.kwf.org/about/',
+    kind: 'foundation',
+    isPrimary: true,
+    noteZh: '用于补充 Kurt Weill 的研究与作品保存脉络，支撑魏玛余波与流亡音乐传统的说明。',
+    noteEn: 'Foundation source used to support Kurt Weill’s legacy and the Weimar-to-exile musical trajectory.',
+  },
+  {
+    id: 'iwm-lale',
+    title: 'Lale Andersen while at BFN, Hamburg, 1946',
+    archiveOrAuthor: 'Imperial War Museums',
+    year: '1946',
+    url: 'http://www.iwm.org.uk/collections/item/object/205124602',
+    kind: 'recording',
+    isPrimary: true,
+    noteZh: 'IWM 关于 Lale Andersen 的馆藏条目，用于支撑《Lili Marleen》跨战线传播的叙述。',
+    noteEn: 'IWM collection item used to support the cross-front circulation of Lale Andersen and “Lili Marleen.”',
+  },
+  {
+    id: 'britannica-russia-music',
+    title: 'Russia: Music',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/place/Russia/Music',
+    kind: 'overview',
+    isPrimary: true,
+    noteZh: '用于概括苏联时期的国家音乐体制、合唱传统与流行/群众歌曲语境。',
+    noteEn: 'Used as a broad overview for Soviet musical institutions, choral traditions, and popular-song context.',
+  },
+  {
+    id: 'iwm-blue-scarf',
+    title: 'The Blue Scarf',
+    archiveOrAuthor: 'Imperial War Museums',
+    year: '2000 interview / WWII content',
+    url: 'https://www.iwm.org.uk/collections/item/object/80030723',
+    kind: 'recording',
+    isPrimary: true,
+    noteZh: 'IWM 关于《蓝色头巾》的声音馆藏记录，用于补足苏联前线歌曲传统的原始记录入口。',
+    noteEn: 'IWM sound-record entry used as the archival record anchor for the Soviet frontline song tradition around "The Blue Scarf."',
+  },
+  {
+    id: 'britannica-edith-piaf',
+    title: 'Edith Piaf',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/biography/Edith-Piaf',
+    kind: 'biography',
+    isPrimary: true,
+    noteZh: '用于支撑占领与解放前后香颂场景中的 Piaf 位置。',
+    noteEn: 'Used to place Piaf within occupied and post-liberation chanson culture.',
+  },
+  {
+    id: 'britannica-django',
+    title: 'Django Reinhardt',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/biography/Django-Reinhardt',
+    kind: 'biography',
+    isPrimary: true,
+    noteZh: '用于支撑巴黎俱乐部爵士与吉普赛爵士传统的代表人物说明。',
+    noteEn: 'Used to anchor Paris club jazz and gypsy jazz through Django Reinhardt.',
+  },
+  {
+    id: 'gallica-damia',
+    title: 'Damia, la tragédienne de la chanson',
+    archiveOrAuthor: 'Gallica / Bibliothèque nationale de France',
+    year: '2021',
+    url: 'https://gallica.bnf.fr/accueil/fr/html/damia-la-tragedienne-de-la-chanson',
+    kind: 'archive',
+    isPrimary: true,
+    noteZh: '法国国家图书馆 Gallica 的香颂专题文章，可补充 1930-40 年代法国都市歌曲的媒介生态。',
+    noteEn: 'BnF Gallica article used here for the media ecology of 1930s–40s French chanson.',
+  },
+  {
+    id: 'italy-music-britannica',
+    title: 'Italy: Music',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/place/Italy/Music',
+    kind: 'overview',
+    isPrimary: true,
+    noteZh: '用于意大利广播、轻歌剧传统与战后大众抒情流行之间的总览性出处。',
+    noteEn: 'General reference for Italian broadcasting, operetta traditions, and postwar lyrical popular music.',
+  },
+  {
+    id: 'canzoneitaliana-faccetta-nera',
+    title: 'Faccetta Nera (Testo ufficiale dello spartito)',
+    archiveOrAuthor: 'Canzone Italiana / ICBSA',
+    year: '1935 score entry',
+    url: 'https://canzoneitaliana.it/en/canzone/faccetta-nera-testo-ufficiale-dello-spartito-en/',
+    kind: 'archive',
+    isPrimary: true,
+    noteZh: '意大利国家声音与视听文化机构项目中的曲目页，保留了《Faccetta Nera》的作曲、唱片公司与演唱者元信息。',
+    noteEn: 'Official Canzone Italiana entry preserving metadata for "Faccetta Nera," including label and performer attribution tied to Carlo Buti.',
+  },
+  {
+    id: 'japan-war-song-study',
+    title: 'Home, Militarism and Nostalgia in Japanese Popular Song from 1937 to 1945',
+    archiveOrAuthor: 'Sabine Strasser / Vienna Journal of East Asian Studies',
+    year: '2011',
+    url: 'https://sciendo.com/article/10.2478/vjeas-2011-0011',
+    kind: 'study',
+    isPrimary: true,
+    noteZh: '开放获取研究，直接讨论 1937-1945 年日本流行歌曲中的军国主义、乡愁与国家动员。',
+    noteEn: 'Open-access study directly discussing militarism, nostalgia, and mobilization in Japanese popular song from 1937 to 1945.',
+  },
+  {
+    id: 'nippon-kasagi',
+    title: 'Rediscovering Japan’s Age of Boogie',
+    archiveOrAuthor: 'Nippon.com',
+    year: '2023',
+    url: 'https://www.nippon.com/en/japan-topics/g02332/',
+    kind: 'essay',
+    isPrimary: true,
+    noteZh: '用于支撑战后日本从摇摆到 boogie 的转向，以及笠置静子的地位。',
+    noteEn: 'Used to support the postwar swing-to-boogie transition in Japan and the place of Shizuko Kasagi.',
+  },
+  {
+    id: 'hkfa-zhou',
+    title: 'Song of a Songstress',
+    archiveOrAuthor: 'Hong Kong Film Archive',
+    year: '2023',
+    url: 'https://www.filmarchive.gov.hk/en/web/hkfa/pe-event-2023-cs-fs-film01.html',
+    kind: 'archive',
+    isPrimary: true,
+    noteZh: '香港电影资料馆关于周璇影片与歌曲的节目页，可作为其战后演唱与影歌关系的馆藏入口。',
+    noteEn: 'Hong Kong Film Archive programme page used as an archival anchor for Zhou Xuan’s postwar film-song legacy.',
+  },
+  {
+    id: 'hkfa-zhou-symposium',
+    title: 'Zhou Xuan and Chen Gexin in Late-1940s Hong Kong Films',
+    archiveOrAuthor: 'Hong Kong Film Archive',
+    year: '2024',
+    url: 'https://www.filmarchive.gov.hk/en_US/web/hkfa/20a-symposium.html',
+    kind: 'study',
+    isPrimary: true,
+    noteZh: '香港电影资料馆研讨会摘要，用于支撑周璇与陈歌辛在 1940 年代后期香港影片中的音乐线索。',
+    noteEn: 'Hong Kong Film Archive symposium abstract supporting Zhou Xuan and Chen Gexin’s late-1940s film-music context.',
+  },
+  {
+    id: 'china-resistance-songs',
+    title: 'Giving Voice to the “Chinese Nation”: Resistance Songs on the Cultural Front in the World Anti-Fascist War (1931–1945)',
+    archiveOrAuthor: 'Zheng Dahua / International Journal of Anthropology and Ethnology',
+    year: '2026',
+    url: 'https://link.springer.com/article/10.1186/s41257-026-00150-4',
+    kind: 'study',
+    isPrimary: true,
+    noteZh: '开放获取论文，直接支撑中国抗战歌曲与民族动员叙述。',
+    noteEn: 'Open-access article used to support Chinese resistance songs and national mobilization narratives.',
+  },
+  {
+    id: 'icm-xian',
+    title: 'Xian Xinghai Memorial Museum Inaugurated',
+    archiveOrAuthor: 'Cultural Affairs Bureau of the Macao SAR Government',
+    year: '2019',
+    url: 'https://www.icm.gov.mo/ef/news/detail/18214',
+    kind: 'museum',
+    isPrimary: true,
+    noteZh: '澳门文化局关于冼星海纪念馆的页面，可作为冼星海生平与遗产的官方出处。',
+    noteEn: 'Official Macao cultural-affairs source used as a biographical anchor for Xian Xinghai.',
+  },
+  {
+    id: 'britannica-mukden',
+    title: 'Mukden Incident',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/event/Mukden-Incident',
+    kind: 'history',
+    isPrimary: true,
+    noteZh: '用于支撑九一八事变的时间、地点与历史意义。',
+    noteEn: 'Used to support the date, location, and historical significance of the Mukden Incident.',
+  },
+  {
+    id: 'britannica-axis',
+    title: 'Axis Powers',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/topic/Axis-Powers',
+    kind: 'history',
+    isPrimary: true,
+    noteZh: '用于轴心国政治与文化协调的背景说明。',
+    noteEn: 'Background reference for Axis political and cultural coordination.',
+  },
+  {
+    id: 'britannica-second-sino-war',
+    title: 'Second Sino-Japanese War',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/event/Second-Sino-Japanese-War',
+    kind: 'history',
+    isPrimary: true,
+    noteZh: '用于支撑全面侵华战争的时间线与区域影响。',
+    noteEn: 'Used to support the chronology and regional impact of the Second Sino-Japanese War.',
+  },
+  {
+    id: 'britannica-world-war-ii',
+    title: 'World War II',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/event/World-War-II',
+    kind: 'history',
+    isPrimary: true,
+    noteZh: '作为欧洲战争爆发与战时总体背景的总览性来源。',
+    noteEn: 'Used as the general historical anchor for the outbreak and wider chronology of World War II.',
+  },
+  {
+    id: 'britannica-barbarossa',
+    title: 'Operation Barbarossa',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/event/Operation-Barbarossa',
+    kind: 'history',
+    isPrimary: true,
+    noteZh: '用于支撑巴巴罗萨行动与东线战局转向。',
+    noteEn: 'Used to support Operation Barbarossa and the transformation of the Eastern Front.',
+  },
+  {
+    id: 'britannica-pearl-harbor',
+    title: 'Pearl Harbor Attack',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/event/Pearl-Harbor-attack',
+    kind: 'history',
+    isPrimary: true,
+    noteZh: '用于支撑珍珠港事件时间线与美国参战转折。',
+    noteEn: 'Used to support the Pearl Harbor chronology and U.S. entry into the war.',
+  },
+  {
+    id: 'britannica-stalingrad',
+    title: 'Battle of Stalingrad',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/event/Battle-of-Stalingrad',
+    kind: 'history',
+    isPrimary: true,
+    noteZh: '用于支撑斯大林格勒战役作为战局转折点的叙述。',
+    noteEn: 'Used to support Stalingrad as a wartime turning point.',
+  },
+  {
+    id: 'britannica-liberation-paris',
+    title: 'Liberation of Paris',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/event/Liberation-of-Paris',
+    kind: 'history',
+    isPrimary: true,
+    noteZh: '用于支撑巴黎解放与战后文化流动重启。',
+    noteEn: 'Used to support the Liberation of Paris and the reopening of postwar cultural circulation.',
+  },
+  {
+    id: 'britannica-ve-day',
+    title: 'V-E Day',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/topic/V-E-Day',
+    kind: 'history',
+    isPrimary: true,
+    noteZh: '用于支撑德国投降及欧洲战事结束。',
+    noteEn: 'Used to support German surrender and the end of the war in Europe.',
+  },
+  {
+    id: 'britannica-vj-day',
+    title: 'V-J Day',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/topic/V-J-Day',
+    kind: 'history',
+    isPrimary: true,
+    noteZh: '用于支撑日本投降与太平洋战事结束。',
+    noteEn: 'Used to support Japan’s surrender and the end of the Pacific War.',
+  },
+  {
+    id: 'britannica-marshall-plan',
+    title: 'Marshall Plan',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/event/Marshall-Plan',
+    kind: 'history',
+    isPrimary: true,
+    noteZh: '用于支撑战后重建、广播现代化与跨大西洋文化工业重组。',
+    noteEn: 'Used to support postwar reconstruction, broadcast modernization, and transatlantic industry realignment.',
+  },
+  {
+    id: 'britannica-prc',
+    title: 'People’s Republic of China',
+    archiveOrAuthor: 'Encyclopaedia Britannica',
+    year: '2026',
+    url: 'https://www.britannica.com/topic/Peoples-Republic-of-China',
+    kind: 'history',
+    isPrimary: true,
+    noteZh: '用于支撑 1949 年中华人民共和国成立及新的国家叙事背景。',
+    noteEn: 'Used to support the 1949 founding of the PRC and the new state narrative context.',
+  },
+]
+
+export const audioClips: AudioClip[] = [
+  {
+    id: 'clip-uncle-sam-blues',
+    title: 'Uncle Sam Blues',
+    performer: 'Oran "Hot Lips" Page with Eddie Condon’s Jazz Band',
+    year: '1944',
+    recordUrl: 'https://www.loc.gov/static/programs/national-recording-preservation-board/recording-registry/induction-years/2008.html',
+    rightsLabel: 'Archive record only',
+    rightsUrl: 'https://www.loc.gov/legal/',
+    noteZh: 'V-Disc 体系中的代表性战时录音，可用于说明美国战时士气音乐与军中流通。',
+    noteEn: 'Representative V-Disc recording used here to illustrate wartime morale music and military circulation in the United States.',
+  },
+  {
+    id: 'clip-sinews-of-peace',
+    title: 'Sinews of Peace',
+    performer: 'Winston Churchill',
+    year: '1946',
+    recordUrl: 'https://www.loc.gov/static/programs/national-recording-preservation-board/recording-registry/induction-years/2008.html',
+    streamUrl: 'https://tile.loc.gov/storage-services/media/recordedsound/Winston-Churchill_Sinews-of-Peace.mp3',
+    rightsLabel: 'Playable archive stream',
+    rightsUrl: 'https://www.loc.gov/legal/',
+    noteZh: '虽然是演说而非歌曲，但可作为战后英美广播声音政治的重要听觉补充。',
+    noteEn: 'Not music but included as a postwar broadcast document for the sonic politics of the early Cold War moment.',
+  },
+  {
+    id: 'clip-lili-marleen',
+    title: 'Lili Marleen',
+    performer: 'Lale Andersen',
+    year: '1942',
+    recordUrl: 'http://www.iwm.org.uk/collections/item/object/205124602',
+    rightsLabel: 'Archive record only',
+    rightsUrl: 'https://www.iwm.org.uk/terms-and-conditions',
+    noteZh: '以馆藏记录形式提供，用于说明《莉莉玛莲》如何跨越轴心与盟军战线传播。',
+    noteEn: 'Linked through the IWM collection record to show how “Lili Marleen” traveled across both Axis and Allied fronts.',
+  },
+  {
+    id: 'clip-well-meet-again',
+    title: "We'll Meet Again",
+    performer: 'Vera Lynn',
+    year: '1939',
+    recordUrl: 'https://www.iwm.org.uk/collections/sound',
+    rightsLabel: 'Archive record only',
+    rightsUrl: 'https://www.iwm.org.uk/terms-and-conditions',
+    noteZh: '以英国战争博物馆馆藏入口补充，作为英国战时慰问与广播语境中的代表歌曲。',
+    noteEn: 'Referenced through IWM’s sound gateway as a representative song of British wartime morale and broadcasting.',
+  },
+  {
+    id: 'clip-la-vie-en-rose',
+    title: 'La Vie en rose',
+    performer: 'Edith Piaf',
+    year: '1954 broadcast of 1946 signature song',
+    recordUrl: 'https://www.ina.fr/ina-eclaire-actu/video/i00013654/edith-piaf-la-vie-en-rose',
+    rightsLabel: 'External archive playback',
+    rightsUrl: 'https://www.ina.fr/rights',
+    noteZh: '法国国家视听研究院 INA 释出的档案演唱片段，用于补充战后巴黎声音文化。',
+    noteEn: 'INA archival performance link used as a postwar Paris sound document tied to Piaf’s signature chanson.',
+  },
+  {
+    id: 'clip-tokyo-boogie',
+    title: 'Tokyo Boogie-Woogie',
+    performer: 'Shizuko Kasagi',
+    year: '1947',
+    recordUrl: 'https://www.nippon.com/en/japan-topics/g02332/',
+    rightsLabel: 'Archive record only',
+    noteZh: '以战后日本 boogie 研究文章中的再版与史料说明补充其代表曲目。',
+    noteEn: 'Linked through a historical feature that documents the song’s reissue and postwar significance.',
+  },
+  {
+    id: 'clip-song-of-a-songstress',
+    title: 'Song of a Songstress',
+    performer: 'Zhou Xuan',
+    year: '1948',
+    recordUrl: 'https://www.filmarchive.gov.hk/en/web/hkfa/pe-event-2023-cs-fs-film01.html',
+    rightsLabel: 'Archive record only',
+    rightsUrl: 'https://www.filmarchive.gov.hk/en/web/hkfa/policy.html',
+    noteZh: '香港电影资料馆节目页中保存了周璇战后影歌关系的馆藏线索。',
+    noteEn: 'Hong Kong Film Archive programme page used as an archival reference to Zhou Xuan’s postwar film-song repertoire.',
+  },
+  {
+    id: 'clip-blue-scarf',
+    title: 'The Blue Scarf',
+    performer: 'Klavdiya Shulzhenko',
+    year: 'WWII song / 2000 interview record',
+    recordUrl: 'https://www.iwm.org.uk/collections/item/object/80030723',
+    rightsLabel: 'Archive record only',
+    rightsUrl: 'https://www.iwm.org.uk/terms-and-conditions',
+    noteZh: 'IWM 馆藏记录显示该条目与舒尔任科及二战音乐主题相关，可作为苏联前线歌曲传统的原始记录入口。',
+    noteEn: 'IWM record page linking the item to Shulzhenko and WWII music; used here as an original-record entry for the Soviet frontline song tradition.',
+  },
+  {
+    id: 'clip-faccetta-nera',
+    title: 'Faccetta Nera',
+    performer: 'Carlo Buti',
+    year: '1935',
+    recordUrl: 'https://canzoneitaliana.it/en/canzone/faccetta-nera-testo-ufficiale-dello-spartito-en/',
+    rightsLabel: 'Archive record only',
+    noteZh: '通过意大利官方歌曲文化项目保留的曲目页补足意大利法西斯时期流行歌曲的馆藏记录入口。',
+    noteEn: 'Official Canzone Italiana record entry used here to represent an Italian wartime-era listening trail without embedding playback.',
+  },
+]
+
+const archiveRights = 'https://help.archive.org/help/rights/'
+const researchUseRightsLabel = 'Internet Archive local playback; research-use rights unverified'
+
+function phaseSong(input: RelatedSong): RelatedSong {
+  return {
+    ...input,
+    streamUrl: input.streamUrl ? publicAssetPath(input.streamUrl) : undefined,
+    sensitivity: input.sensitivity ?? 'neutral',
+  }
+}
+
+const phaseSongCatalog = {
+  boogieWoogieBugleBoy: phaseSong({
+    title: 'Boogie Woogie Bugle Boy',
+    performer: 'Woody Herman and His Orchestra',
+    year: '1942 same-song 78 rpm transfer',
+    noteZh: '用布吉节奏和大乐队编制表现美国摇摆乐如何被战时娱乐工业吸收。',
+    noteEn: 'Shows how boogie rhythm and big-band writing were absorbed into U.S. wartime entertainment.',
+    eventRelationZh: '从新政时期的广播舞厅文化，到珍珠港后的军中演出，摇摆乐的传播网络几乎没有中断，只是功能从消遣转向士气。',
+    eventRelationEn: 'From New Deal radio and dance halls to post-Pearl Harbor troop entertainment, swing circulation did not stop; its job shifted from diversion toward morale.',
+    listeningGuideZh: '注意铜管短句、切分重音和合唱式副歌怎样把舞厅能量变成军旅喜剧感。',
+    listeningGuideEn: 'Listen for brass riffs, syncopation, and refrain singing that turn dance-hall energy into service comedy.',
+    sourceUrl: 'https://archive.org/details/78_boogie-woogie-bugle-boy-woody-herman-his-orchestra-vocal-chorus-by-woody',
+    streamUrl: '/audio/events/boogie-woogie-bugle-boy.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    sensitivity: 'patriotic',
+    audioCredit: 'Internet Archive 78 rpm transfer, Woody Herman and His Orchestra; historical-near same-song version rather than the Andrews Sisters recording',
+  }),
+  wingPrayer: phaseSong({
+    title: 'Coming in on a Wing and a Prayer',
+    performer: 'V-Disc wartime recording',
+    year: '1943',
+    noteZh: '把空战危险写成后方可反复传唱的士气叙事。',
+    noteEn: 'Turns the danger of air war into a repeatable home-front morale narrative.',
+    eventRelationZh: '美国参战后，流行工业快速把军种、任务和新闻故事写进歌曲，形成战时唱片和广播的共同题材。',
+    eventRelationEn: 'After U.S. entry, pop production rapidly folded service branches, missions, and news stories into songs for records and radio.',
+    listeningGuideZh: '注意轻快叙事和“祈祷”意象怎样把危险处理成希望。',
+    listeningGuideEn: 'Listen for light narrative pacing and prayer imagery that convert danger into hope.',
+    sourceUrl: 'https://archive.org/details/V-discs1-991943-1944',
+    streamUrl: '/audio/events/coming-in-on-a-wing-and-a-prayer.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    sensitivity: 'patriotic',
+    audioCredit: 'Internet Archive V-Discs 1-99, wartime educational playback',
+  }),
+  ornithology: phaseSong({
+    title: 'Ornithology',
+    performer: 'Charlie Parker Septet',
+    year: '1946',
+    noteZh: '比波普把战后美国爵士推向更快的和声、即兴和俱乐部现代性。',
+    noteEn: 'Bebop moves postwar U.S. jazz toward faster harmony, improvisation, and club modernity.',
+    eventRelationZh: '马歇尔援助和驻军文化之外，唱片、俱乐部和音乐家流动也让美国爵士成为战后跨大西洋文化的一部分。',
+    eventRelationEn: 'Alongside the Marshall Plan and military presence, records, clubs, and musician mobility made U.S. jazz part of postwar transatlantic culture.',
+    listeningGuideZh: '注意急速主题、切分重音和即兴线条怎样区别于战时大乐队娱乐。',
+    listeningGuideEn: 'Listen for the rapid head, syncopation, and improvising lines that differ from wartime big-band entertainment.',
+    sourceUrl: 'https://archive.org/details/78_orinthology_charlie-parker-septet-charlie-parker-lucky-thompson-miles-davis-dodo-ma_gbia0344030b',
+    streamUrl: '/audio/events/ornithology.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    audioCredit: 'Internet Archive 78 rpm transfer, Charlie Parker Septet with Miles Davis',
+  }),
+  whiteCliffs: phaseSong({
+    title: 'The White Cliffs of Dover',
+    performer: 'Betty Regan / historical-near recording',
+    year: 'wartime song',
+    noteZh: '把英国本土防卫、海峡意象和等待胜利的情绪合在一起。',
+    noteEn: 'Combines homeland defense, Channel imagery, and the expectation of victory.',
+    eventRelationZh: '英国战前 BBC 与舞厅传统进入战争后，被重新听成防空、离别和共同韧性的声音。',
+    eventRelationEn: 'Once Britain entered the war, BBC and dance-band habits were reheard through air raids, separation, and shared endurance.',
+    listeningGuideZh: '注意宽缓旋律和地名意象如何制造“守住家园”的公共情绪。',
+    listeningGuideEn: 'Listen for broad melody and place imagery shaping a public feeling of holding the homeland.',
+    sourceUrl: 'https://archive.org/details/lp_charlies-penthouse-party_betty-regan-ronnie-kemper-bob-moonan',
+    streamUrl: '/audio/events/white-cliffs-of-dover.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    sensitivity: 'patriotic',
+    audioCredit: 'Internet Archive LP transfer retained for event/audio reuse',
+  }),
+  wellMeetAgain: phaseSong({
+    title: "We'll Meet Again",
+    performer: "Vera Lynn / Members of Her Majesty's Armed Forces",
+    year: '1953 78 rpm transfer of 1939 song',
+    noteZh: '用温柔声线承载离别、等待和重逢承诺，是英国战时广播记忆的核心样本。',
+    noteEn: 'Uses gentle delivery to hold separation, waiting, and reunion, a core sound of British wartime broadcasting memory.',
+    eventRelationZh: '闪电战、防空洞和前线分离让“重逢”不只是歌词主题，而是广播每天需要提供的心理支撑。',
+    eventRelationEn: 'The Blitz, shelters, and front-line separation made reunion more than a lyric theme; it became a daily psychological task for radio.',
+    listeningGuideZh: '注意重复副歌和克制伴奏如何降低恐惧感。',
+    listeningGuideEn: 'Listen for repeated refrain and restrained accompaniment as techniques of reassurance.',
+    sourceUrl: 'https://archive.org/details/78_well-meet-again_vera-lynn-members-of-her-majestys-armed-forces-parker-charles-rol_gbia0276753a',
+    streamUrl: "https://archive.org/download/78_well-meet-again_vera-lynn-members-of-her-majestys-armed-forces-parker-charles-rol_gbia0276753a/WE%27LL%20MEET%20AGAIN%20-%20VERA%20LYNN%20-%20Members%20of%20Her%20Majesty%27s%20Armed%20Forces.mp3",
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    sensitivity: 'patriotic',
+    audioCredit: "Internet Archive 78 rpm transfer, Vera Lynn with Members of Her Majesty's Armed Forces; later same-song educational playback",
+  }),
+  whenLights: phaseSong({
+    title: 'When the Lights Go On Again',
+    performer: 'Shep Fields Orchestra / Ralph Young',
+    year: '1942',
+    noteZh: '用“灯光重启”想象战争结束后的城市恢复和日常生活归来。',
+    noteEn: 'Imagines the return of city lights and ordinary life after wartime blackout.',
+    eventRelationZh: '战后英国仍在配给和重建中，这类盟军歌曲把胜利后的生活恢复唱成可共享的未来图像。',
+    eventRelationEn: 'Postwar Britain still faced rationing and rebuilding; Allied songs like this made recovery audible as a shared future image.',
+    listeningGuideZh: '注意抒情线条和乐观副歌如何从防空经验转向重建愿望。',
+    listeningGuideEn: 'Listen for lyrical line and optimistic refrain moving from blackout experience toward reconstruction.',
+    sourceUrl: 'https://archive.org/details/big-bands-world-war-ii',
+    streamUrl: '/audio/events/when-the-lights-go-on-again.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    sensitivity: 'patriotic',
+    audioCredit: 'Internet Archive Big Bands: World War II collection',
+  }),
+  mackKnife: phaseSong({
+    title: 'Mack the Knife',
+    performer: 'Kurt Weill / Bertolt Brecht repertoire',
+    year: '1928',
+    noteZh: '魏玛剧场歌曲的代表，带有都市讽刺、爵士化节奏和反英雄叙事。',
+    noteEn: 'A Weimar theatre-song landmark with urban satire, jazz inflection, and anti-hero narration.',
+    eventRelationZh: '纳粹文化清洗正是要切断这种现代主义、左翼剧场和都市娱乐传统；战后重建又必须重新面对它。',
+    eventRelationEn: 'Nazi cultural purges targeted precisely this modernist, left-theatre, urban tradition; postwar rebuilding had to face it again.',
+    listeningGuideZh: '注意冷峻叙事和剧场化节奏如何区别于仪式进行曲。',
+    listeningGuideEn: 'Listen for detached narration and theatrical rhythm, sharply unlike ceremonial marches.',
+    sourceUrl: 'https://archive.org/details/kurt-weill-bertolt-brecht-the-original-threepenny-opera-die-dreigroschenoper-deu',
+    streamUrl: '/audio/events/mack-the-knife.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    audioCredit: 'Internet Archive item The Original Threepenny Opera, track Moritat von Mackie Messer',
+  }),
+  liliMarleen: phaseSong({
+    title: 'Lili Marleen',
+    performer: 'Lale Andersen',
+    year: '1939 / wartime circulation',
+    noteZh: '士兵抒情歌因广播跨过阵营边界，成为多国前线共同记忆。',
+    noteEn: 'A soldier lyric that crossed battle lines through broadcasting and became shared front-line memory.',
+    eventRelationZh: '它说明宣传和审查并不能完全控制歌曲的听众意义，私人情绪会沿着电台传播出去。',
+    eventRelationEn: 'It shows that propaganda and censorship could not fully control listener meaning; private feeling traveled through radio.',
+    listeningGuideZh: '注意低速、重复和夜间意象如何形成私人化的前线情绪。',
+    listeningGuideEn: 'Listen for slow tempo, repetition, and night imagery creating private front-line feeling.',
+    sourceUrl: 'https://archive.org/details/78_unter-der-laterne-lili-marleen-lied-eines-jungen-wachtpostens_lale-andersen-han_gbia0125670a',
+    streamUrl: '/audio/events/lili-marleen.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    audioCredit: 'Internet Archive 78 rpm transfer, Lale Andersen, Unter der Laterne / Lili Marleen',
+  }),
+  katyusha: phaseSong({
+    title: 'Katyusha',
+    performer: 'State Jazz Orchestra of the U.S.S.R.',
+    year: '1939',
+    noteZh: '把抒情旋律、民间感和国家防卫想象结合，是苏联群众歌曲进入战争前夜的代表。',
+    noteEn: 'Blends lyric melody, folk feeling, and national defense imagery on the eve of war.',
+    eventRelationZh: '它处在大清洗后、全面战争前的边界上，显示国家合唱和流行旋律如何准备进入动员体系。',
+    eventRelationEn: 'It sits between the late-1930s Soviet state and full war, showing how mass song and popular melody were ready for mobilization.',
+    listeningGuideZh: '注意明亮旋律和齐整节拍怎样同时保留抒情与行进感。',
+    listeningGuideEn: 'Listen for bright melody and regular pulse that keep lyricism and forward motion together.',
+    sourceUrl: 'https://archive.org/details/78_katiusha_v.-batischev-p.-mikhailov-v.-tiutiunik-state-jazz-orch.-u.-s.-s.-r.-m.-bla_gbia0007524a',
+    streamUrl: '/audio/events/katyusha.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    sensitivity: 'patriotic',
+    audioCredit: 'Internet Archive 78 rpm transfer, Katiusha, State Jazz Orchestra of the U.S.S.R.',
+  }),
+  sacredWar: phaseSong({
+    title: 'Sacred War',
+    performer: 'Soviet wartime choral repertoire',
+    year: '1941',
+    noteZh: '以庄严合唱和低沉推进把巴巴罗萨后的震荡转化为公共防御声音。',
+    noteEn: 'Uses solemn chorus and dark forward motion to turn the shock after Barbarossa into public defense sound.',
+    eventRelationZh: '卫国战争让电影配乐、前线歌曲和群众合唱承担明确的国家防御任务。',
+    eventRelationEn: 'The Great Patriotic War gave film music, front songs, and mass chorus a clear national-defense function.',
+    listeningGuideZh: '注意慢速、低音区和齐唱力量怎样带出庄严与紧迫。',
+    listeningGuideEn: 'Listen for slow tempo, low register, and unison force shaping gravity and urgency.',
+    sourceUrl: 'https://archive.org/details/lp_russian-songs_sostri-fodorowi',
+    streamUrl: '/audio/events/sacred-war.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    sensitivity: 'patriotic',
+    audioCredit: 'Internet Archive LP Russian Songs',
+  }),
+  darkNight: phaseSong({
+    title: 'Dark Night',
+    performer: 'Mark Bernes repertoire',
+    year: '1943 song / later archive item',
+    noteZh: '用低声抒情表现前线士兵的夜晚、家书和亲密记忆。',
+    noteEn: 'Uses intimate low-voiced lyricism for front-line night, letters, and private memory.',
+    eventRelationZh: '战后苏联英雄叙事不只有宏大合唱，也继续回收战争中的私人牵挂和牺牲感。',
+    eventRelationEn: 'Postwar Soviet heroic narrative did not only use grand chorus; it also reused wartime private longing and sacrifice.',
+    listeningGuideZh: '注意近距离声线和缓慢伴奏如何把集体战争压缩到个人夜晚。',
+    listeningGuideEn: 'Listen for close vocal color and slow accompaniment compressing collective war into an individual night.',
+    sourceUrl: 'https://archive.org/details/20210814_20210814_0956',
+    streamUrl: '/audio/events/dark-night.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    sensitivity: 'patriotic',
+    audioCredit: 'Internet Archive Mark Bernes collection, Tyomnaya noch; historical-near archive item',
+  }),
+  jattendrai: phaseSong({
+    title: 'J’attendrai',
+    performer: 'Gisele MacKenzie / French-language repertoire',
+    year: '1930s song / later performance',
+    noteZh: '“等待”主题在欧洲战争和占领经验中被重新听见。',
+    noteEn: 'The theme of waiting was reheard through European war and occupation.',
+    eventRelationZh: '战前巴黎的香颂和咖啡馆声音，在战争来临后被重新装入分离、审查和盼望的时间感。',
+    eventRelationEn: 'Prewar Paris chanson and cafe sound were refilled by war with separation, censorship, and suspended time.',
+    listeningGuideZh: '注意圆舞式流动和延宕感如何制造“等待”的听觉时间。',
+    listeningGuideEn: 'Listen for waltz-like flow and suspension that make waiting audible.',
+    sourceUrl: 'https://archive.org/details/ka-87-gisele-mackenzie-jattendrai',
+    streamUrl: '/audio/events/jattendrai.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    audioCredit: 'Internet Archive item ka-87-gisele-mackenzie-jattendrai',
+  }),
+  laVie: phaseSong({
+    title: 'La Vie en rose',
+    performer: 'Edith Piaf',
+    year: '1946 song / 78 rpm transfer',
+    noteZh: '解放后巴黎香颂把街头记忆、亲密情绪和国际舞台连在一起。',
+    noteEn: 'Post-liberation chanson connects street memory, intimacy, and the international stage.',
+    eventRelationZh: '占领时期不能直说的私人情绪，解放后转向更开放的夜生活、唱片和海外传播。',
+    eventRelationEn: 'Private feeling compressed during occupation moved after liberation toward nightlife, records, and overseas circulation.',
+    listeningGuideZh: '注意声线的近距离感和旋律抬升如何把个人爱情变成城市标志。',
+    listeningGuideEn: 'Listen for close vocal presence and melodic lift turning personal love into a city sign.',
+    sourceUrl: 'https://archive.org/details/78_la-vie-en-rose_edith-piaf-louiguy-guy-luypaerts_gbia0100798a_item',
+    streamUrl: '/audio/events/la-vie-en-rose.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    audioCredit: 'Internet Archive 78 rpm transfer, Edith Piaf, La vie en rose',
+  }),
+  fleurParis: phaseSong({
+    title: 'Fleur de Paris',
+    performer: 'French liberation-era chanson repertoire',
+    year: '1944 song / later archive item',
+    noteZh: '把巴黎、花朵和共和国回归联系起来，是解放庆祝声景的样本。',
+    noteEn: 'Links Paris, flower imagery, and republican return as a sample of liberation soundscape.',
+    eventRelationZh: '巴黎解放后，街头庆祝和咖啡馆音乐空间重新打开，香颂也重新承担城市公共记忆。',
+    eventRelationEn: 'After the Liberation of Paris, street celebration and cafe music reopened, and chanson again carried urban public memory.',
+    listeningGuideZh: '注意轻快节拍和城市意象如何区别于占领时期的压抑声场。',
+    listeningGuideEn: 'Listen for light pulse and city imagery, distinct from the compressed sound of occupation.',
+    sourceUrl: 'https://archive.org/details/lp_favorite-music-of-france_cecile-chauveau',
+    streamUrl: '/audio/events/fleur-de-paris.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    audioCredit: 'Internet Archive LP Favorite Music of France',
+  }),
+  faccettaNera: phaseSong({
+    title: 'Faccetta Nera',
+    performer: 'Banda Polydor / Carlo Buti-linked repertoire',
+    year: '1935',
+    noteZh: '意大利殖民战争语境中的流行宣传歌曲，带有明确帝国主义和种族化叙事。',
+    noteEn: 'A popular propaganda song from Italian colonial-war context, with explicit imperial and racialized framing.',
+    eventRelationZh: '它显示法西斯仪式、广播和易记旋律如何把殖民暴力包装成大众娱乐。',
+    eventRelationEn: 'It shows how Fascist ceremony, radio, and memorable melody packaged colonial violence as mass entertainment.',
+    listeningGuideZh: '仅从旋律传播和宣传机制角度分析，不采用其政治叙事。',
+    listeningGuideEn: 'Analyze only its melodic circulation and propaganda mechanism, not its political claims.',
+    sourceUrl: 'https://archive.org/details/banda-polydor-faccetta-nera-marcia-brunswick-6275-gr-58320',
+    streamUrl: '/audio/events/faccetta-nera.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    sensitivity: 'sensitive-context',
+    audioCredit: 'Internet Archive 78 rpm transfer, Banda Polydor - Faccetta Nera; sensitive colonial propaganda material',
+  }),
+  fischia: phaseSong({
+    title: 'Fischia il vento',
+    performer: 'Italian partisan repertoire',
+    year: '1943 resistance circulation',
+    noteZh: '借用《喀秋莎》旋律的意大利反法西斯游击队歌曲。',
+    noteEn: 'An Italian anti-fascist partisan song adapted from the melody of Katyusha.',
+    eventRelationZh: '它说明同一场战争里，音乐既可能服务轴心仪式，也可能被地下组织改写成抵抗声音。',
+    eventRelationEn: 'It shows that in the same war, music could serve Axis ceremony or be rewritten underground as resistance sound.',
+    listeningGuideZh: '注意熟悉旋律如何被重新填词，转向行军、秘密组织和抵抗情绪。',
+    listeningGuideEn: 'Listen for how a familiar melody is retexted toward marching, clandestine organization, and resistance.',
+    sourceUrl: 'https://archive.org/details/ror-katyusha-fischiailvento-x4ab8sev',
+    streamUrl: '/audio/events/fischia-il-vento.ogg',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    sensitivity: 'resistance',
+    audioCredit: 'Internet Archive item ror-katyusha-fischiailvento-x4ab8sev',
+  }),
+  bellaCiao: phaseSong({
+    title: 'Bella Ciao',
+    performer: 'Italian anti-fascist memory repertoire',
+    year: 'wartime memory / postwar circulation',
+    noteZh: '战后不断被重唱的意大利反法西斯记忆歌曲。',
+    noteEn: 'An Italian anti-fascist memory song repeatedly re-sung after the war.',
+    eventRelationZh: '它把欧洲战争结束后的政治清算、地方抵抗和民间记忆连接起来。',
+    eventRelationEn: 'It connects the end of the European war with political reckoning, local resistance, and popular memory.',
+    listeningGuideZh: '注意简洁副歌和重复结构如何支持集体合唱。',
+    listeningGuideEn: 'Listen for the concise refrain and repetition that support collective singing.',
+    sourceUrl: 'https://archive.org/details/bella-ciao_202210',
+    streamUrl: '/audio/events/bella-ciao.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    sensitivity: 'resistance',
+    audioCredit: 'Internet Archive item bella-ciao_202210',
+  }),
+  aikoku: phaseSong({
+    title: 'Aikoku Koshinkyoku',
+    performer: 'Japanese wartime policy-song repertoire',
+    year: '1937',
+    noteZh: '日本国策歌谣样本，显示流行旋律如何被纳入国家动员。',
+    noteEn: 'A Japanese policy-song sample showing how popular melody was absorbed into state mobilization.',
+    eventRelationZh: '从九一八事变到全面侵华，广播审查、唱片工业和群众歌唱逐步被战争目标重排。',
+    eventRelationEn: 'From Mukden to the full-scale war in China, broadcast review, records, and mass singing were increasingly reorganized around war aims.',
+    listeningGuideZh: '注意整齐节拍、明亮旋律和集体推进感；页面仅作历史研究样本呈现。',
+    listeningGuideEn: 'Listen for regular pulse, bright melody, and collective forward drive; presented only as a historical study sample.',
+    sourceUrl: 'https://archive.org/details/TaiatariSeishin',
+    streamUrl: '/audio/events/aikoku-koshinkyoku.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    sensitivity: 'sensitive-context',
+    audioCredit: 'Internet Archive item TaiatariSeishin',
+  }),
+  ringo: phaseSong({
+    title: 'Ringo no Uta',
+    performer: 'Japanese post-surrender film-song repertoire',
+    year: '1945',
+    noteZh: '战后日本流行歌重启的象征之一，用轻快日常物象替代战时纪律化声响。',
+    noteEn: 'A symbol of Japanese popular-song restart, replacing wartime discipline with bright everyday imagery.',
+    eventRelationZh: '日本投降后，电影歌曲和占领期娱乐空间把旧流行歌习惯迅速转向战后城市生活。',
+    eventRelationEn: 'After surrender, film song and occupation-era entertainment spaces quickly redirected older pop habits toward postwar city life.',
+    listeningGuideZh: '注意轻快旋律和日常物象如何制造重新开始的感觉。',
+    listeningGuideEn: 'Listen for bright melody and everyday imagery producing a sense of restart.',
+    sourceUrl: 'https://archive.org/details/78_title-in-japanese_gbia0035328a',
+    streamUrl: '/audio/events/ringo-no-uta.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    audioCredit: 'Internet Archive 78 rpm transfer, Ringo No Uta / The Song of the Apple metadata',
+  }),
+  tokyoBoogie: phaseSong({
+    title: 'Tokyo Boogie-Woogie',
+    performer: 'Shizuko Kasagi',
+    year: '1947',
+    noteZh: '占领期日本舞台和唱片工业的代表曲，把布吉节奏与都市复兴结合。',
+    noteEn: 'A representative occupation-era Japanese hit joining boogie rhythm to urban recovery.',
+    eventRelationZh: '它显示美国音乐语汇如何通过占领军广播、夜总会和唱片进入战后日本流行工业。',
+    eventRelationEn: 'It shows how American musical vocabulary entered postwar Japanese pop through occupation radio, clubs, and records.',
+    listeningGuideZh: '注意布吉节奏、舞台能量和战后都市感。',
+    listeningGuideEn: 'Listen for boogie rhythm, stage energy, and postwar urban brightness.',
+    sourceUrl: 'https://archive.org/details/78_tokyo-boogie-woogie_gbia0543885b',
+    streamUrl: '/audio/events/tokyo-boogie-woogie.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    audioCredit: 'Internet Archive 78 rpm transfer, Tokyo Boogie Woogie',
+  }),
+  greatWall: phaseSong({
+    title: 'Song of the Great Wall',
+    performer: 'Liu Xue’an / Pan Zi-nong repertoire',
+    year: '1937',
+    noteZh: '以长城意象组织救亡情绪，把地理边界转成可合唱的民族共同体。',
+    noteEn: 'Uses the Great Wall to organize salvation feeling, turning geography into singable national community.',
+    eventRelationZh: '九一八之后，中国音乐人不只记录事件，也把边疆、流亡和民族危机重新编码进歌曲。',
+    eventRelationEn: 'After Mukden, Chinese musicians did more than record events; they recoded frontiers, exile, and national crisis into song.',
+    listeningGuideZh: '注意宽广旋律和合唱式语气如何放大“边界”意象。',
+    listeningGuideEn: 'Listen for broad melody and choral rhetoric enlarging the border image.',
+    sourceUrl: 'https://archive.org/details/lp_popular-chinese-classics-vol-2_hong-kong-philharmonic-orchestra-kennet',
+    streamUrl: '/audio/events/song-of-the-great-wall.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    sensitivity: 'resistance',
+    audioCredit: 'Internet Archive LP Popular Chinese Classics Vol. 2; orchestral concert version used as historical-near educational recording',
+  }),
+  guerrillas: phaseSong({
+    title: 'Song of the Guerrillas',
+    performer: 'He Luting repertoire',
+    year: '1937',
+    noteZh: '用轻快节奏写出游击行动的机动性和群众性。',
+    noteEn: 'Uses brisk rhythm to stage the mobility and mass character of guerrilla action.',
+    eventRelationZh: '全面抗战后，迁徙中的学校、剧团和音乐人把短小歌曲变成募捐、教育和动员的工具。',
+    eventRelationEn: 'After full-scale war began, displaced schools, troupes, and musicians turned compact songs into tools for fundraising, education, and mobilization.',
+    listeningGuideZh: '注意短句、跳跃节奏和集体应答感。',
+    listeningGuideEn: 'Listen for short phrases, springing rhythm, and a sense of collective response.',
+    sourceUrl: 'https://archive.org/details/fry188_yahoo_201504',
+    streamUrl: '/audio/events/song-of-guerrillas.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    sensitivity: 'resistance',
+    audioCredit: 'Internet Archive item fry188_yahoo_201504',
+  }),
+  yellowRiver: phaseSong({
+    title: 'Defend the Yellow River',
+    performer: 'Yellow River Cantata repertoire',
+    year: '1939',
+    noteZh: '大型抗战合唱中的段落，把黄河地理想象转成集体行动。',
+    noteEn: 'A movement from a major resistance cantata, turning Yellow River geography into collective action.',
+    eventRelationZh: '抗战时期的大型合唱不只是舞台作品，也是学校、集会和宣传队可以使用的公共形式。',
+    eventRelationEn: 'Wartime large chorus was not only concert work; it became a public form usable by schools, rallies, and propaganda troupes.',
+    listeningGuideZh: '注意轮唱、强节拍和群众合唱如何制造推进感。',
+    listeningGuideEn: 'Listen for canonic entries, strong pulse, and mass chorus creating forward motion.',
+    sourceUrl: 'https://archive.org/details/lp_yellow-river-cantata_central-philharmonic-society',
+    streamUrl: '/audio/events/yellow-river-defend.mp3',
+    rightsLabel: researchUseRightsLabel,
+    rightsUrl: archiveRights,
+    sensitivity: 'resistance',
+    audioCredit: 'Internet Archive LP Yellow River Cantata, Defend the Yellow River movement',
+  }),
+  marchVolunteers: phaseSong({
+    title: 'March of the Volunteers',
+    performer: 'U.S. Navy Band modern instrumental recording',
+    year: '1935 song / later anthem recording',
+    noteZh: '从电影歌曲、抗战动员到 1949 年后的国家象征，意义不断转移。',
+    noteEn: 'Moved from film song and wartime mobilization into state symbolism after 1949.',
+    eventRelationZh: '它能把中国战时救亡歌曲、公共集会和新国家叙事连成一条可听见的线。',
+    eventRelationEn: 'It connects Chinese salvation song, public assembly, and new-state narrative into an audible line.',
+    listeningGuideZh: '注意上行动机、齐唱式力量和近似口号的句法。',
+    listeningGuideEn: 'Listen for the rising motive, collective force, and slogan-like phrasing.',
+    sourceUrl: 'https://archive.org/details/us-navy-band-national-anthems-public-domain',
+    streamUrl: '/audio/events/march-of-the-volunteers.mp3',
+    rightsLabel: 'U.S. Navy Band local playback; public-domain U.S. government recording',
+    rightsUrl: 'https://www.navyband.navy.mil/national-anthems/',
+    sensitivity: 'resistance',
+    audioCredit: 'Internet Archive item us-navy-band-national-anthems-public-domain, Current/China.mp3; modern instrumental anthem recording, not the 1935 film-song recording',
+  }),
+} satisfies Record<string, RelatedSong>
+
+export const phaseMediaByKey: Record<string, EntityMediaLinks> = {
+  [getPhaseReferenceKey('us', 1931)]: {
+    sourceIds: ['britannica-benny-goodman', 'loc-recorded-sound'],
+    summaryZh:
+      '商业电台、舞厅巡演和唱片公司让大乐队成为大萧条后最容易流通的城市声音。新政时代的广播把客厅、舞厅和全国市场连在一起，后来美国参战时，军中娱乐和 V-Disc 体系正是借用了这套已经成熟的传播网络。',
+    summaryEn:
+      'Commercial radio, dance-hall touring, and record companies made big bands one of the most mobile urban sounds after the Depression. New Deal-era broadcasting linked parlors, dance floors, and a national market, and wartime troop entertainment later borrowed that mature circulation network.',
+    historicalContextZh:
+      '我把 1930 年代美国风格放在“战争之前的准备”里看。摇摆乐不是因为珍珠港才突然流行，而是在经济危机后的廉价娱乐、全国广播网和舞厅经济中先变成共同语言。战争到来后，同样的节奏、乐队编制和明星工业被改造成士气工具。',
+    historicalContextEn:
+      'I read 1930s U.S. style as a prewar infrastructure. Swing did not become important only after Pearl Harbor; it had already become a shared language through cheap entertainment, network radio, and dance-hall business after the Depression. War then redirected the same rhythms, bands, and star system toward morale work.',
+    representativeSongs: [phaseSongCatalog.boogieWoogieBugleBoy],
+  },
+  [getPhaseReferenceKey('us', 1939)]: {
+    sourceIds: ['loc-soundtrack-wwii', 'loc-vdisc-registry'],
+    audioClipIds: ['clip-uncle-sam-blues'],
+    summaryZh:
+      '珍珠港之后，美国流行工业迅速把基地、军种、空战和离别写进歌曲。USO 演出、短波广播、军中唱片和电影音乐一起工作，让爵士、和声小组和叙事流行歌成为盟军士气系统的一部分。',
+    summaryEn:
+      'After Pearl Harbor, U.S. popular music quickly absorbed bases, service branches, air war, and separation into song. USO shows, shortwave broadcasts, military records, and film music worked together, making jazz, close-harmony groups, and narrative pop part of the Allied morale system.',
+    historicalContextZh:
+      '这个阶段最重要的变化，是娱乐业和军队传播之间的边界变薄了。歌曲不只是“让人高兴”，也在解释新闻、安慰后方、包装危险任务，并通过唱片和广播进入海外基地。美国音乐由此开始带着军事流通的速度走向世界。',
+    historicalContextEn:
+      'After Pearl Harbor, the key change is that the line between entertainment industry and military communication became thin. Songs did not only cheer people up; they explained news, comforted the home front, framed dangerous missions, and moved into overseas bases through records and radio. U.S. music began traveling globally with military speed.',
+    representativeSongs: [phaseSongCatalog.wingPrayer],
+  },
+  [getPhaseReferenceKey('us', 1946)]: {
+    sourceIds: ['loc-recorded-sound', 'britannica-marshall-plan'],
+    summaryZh:
+      '战后唱片、驻军电台、欧洲重建和俱乐部巡演让美国流行歌继续外扩。与此同时，比波普把爵士从战时大乐队娱乐推向更复杂的现代语言，和柔和的 crooner 流行共同构成美国战后文化输出的两面。',
+    summaryEn:
+      'Postwar records, military radio, European reconstruction, and club touring kept U.S. pop moving outward. At the same time, bebop pushed jazz beyond wartime big-band entertainment into a more complex modern language, sitting beside softer crooner pop as another face of U.S. cultural export.',
+    historicalContextZh:
+      '马歇尔计划常被当作经济史事件，但在音乐上也意味着电台、唱片市场和夜生活的重组。美国声音进入欧洲和日本，不只是因为“好听”，也因为战后基地、援助和媒介基础设施把它放到了新的听众面前。',
+    historicalContextEn:
+      'The Marshall Plan is often treated as economic history, but musically it also meant reorganized radio, record markets, and nightlife. U.S. sound reached Europe and Japan not simply because it was attractive, but because postwar bases, aid, and media infrastructure placed it before new listeners.',
+    representativeSongs: [phaseSongCatalog.ornithology],
+  },
+  [getPhaseReferenceKey('uk', 1931)]: {
+    sourceIds: ['iwm-sound', 'britannica-vera-lynn'],
+    summaryZh:
+      'BBC 的规整节目、轻音乐和舞厅乐队让英国战前声音显得温和而稳定。正是这种稳定的广播制度，使后来的防空洞、工厂和前线能够共享同一套歌曲记忆。',
+    summaryEn:
+      'BBC orderliness, light music, and dance bands gave prewar British sound a calm, regular surface. That reliable broadcasting system later allowed shelters, factories, and the front to share the same song memory.',
+    historicalContextZh:
+      '英国风格的变化不是从“轻音乐”直接跳到“战争歌曲”，而是从帝国广播和日常舞厅里长出战时韧性。1930 年代形成的公共收听习惯，在闪电战时期变成维系共同情绪的基础。',
+    historicalContextEn:
+      'British style did not jump from light music straight to war song; wartime resilience grew out of imperial broadcasting and everyday dance-band listening. The public listening habits of the 1930s became the emotional infrastructure of the Blitz years.',
+    representativeSongs: [phaseSongCatalog.whiteCliffs],
+  },
+  [getPhaseReferenceKey('uk', 1939)]: {
+    sourceIds: ['iwm-sound', 'britannica-vera-lynn'],
+    audioClipIds: ['clip-well-meet-again'],
+    summaryZh:
+      '闪电战、疏散、配给和前线分离让英国广播承担了安慰和组织情绪的任务。Vera Lynn 式的歌并不宏大，却把“等你回来”的私人承诺变成全国可共享的后方语言。',
+    summaryEn:
+      'The Blitz, evacuation, rationing, and front-line separation made British radio responsible for comfort and emotional organization. Songs associated with Vera Lynn were not grandiose, but they turned private promises of reunion into a national home-front language.',
+    historicalContextZh:
+      '这里的音乐发展和历史事件贴得很近：防空警报和停电让“家”的声音更重要，军中广播又把家里的歌送到前线。柔和抒情不是逃避战争，而是战争压力下的一种心理技术。',
+    historicalContextEn:
+      'Music and events are very close here: air raids and blackout made the sound of home more important, while forces broadcasting sent home-front songs to the front. Soft lyricism was not an escape from war, but a psychological technique under wartime pressure.',
+    representativeSongs: [phaseSongCatalog.wellMeetAgain],
+  },
+  [getPhaseReferenceKey('uk', 1946)]: {
+    sourceIds: ['iwm-sound', 'britannica-marshall-plan'],
+    audioClipIds: ['clip-sinews-of-peace'],
+    summaryZh:
+      '战后英国仍在配给和财政压力中重建，但美军基地、进口唱片和 BBC 的公共广播让美国摇摆、电影歌和本土轻音乐继续相遇。后来青年流行文化的种子，可以在这种节俭中的跨大西洋接触里找到。',
+    summaryEn:
+      'Postwar Britain rebuilt under rationing and fiscal pressure, yet U.S. bases, imported records, and BBC public broadcasting kept American swing, film song, and local light music in contact. Seeds of later youth pop can be found in this austere transatlantic contact.',
+    historicalContextZh:
+      '胜利没有马上带来富足，所以战后歌曲常在“灯光恢复”和现实节制之间摆动。音乐发展受到历史条件限制：广播要维持公共信心，唱片市场要重新打开，而美国声音也借重建秩序继续进入英国。',
+    historicalContextEn:
+      'Victory did not immediately bring abundance, so postwar songs often moved between restored lights and real austerity. Musical development was shaped by conditions: radio had to maintain public confidence, record markets had to reopen, and U.S. sound continued entering Britain through reconstruction.',
+    representativeSongs: [phaseSongCatalog.whenLights],
+  },
+  [getPhaseReferenceKey('de', 1931)]: {
+    sourceIds: ['ushmm-degenerate-art', 'kurt-weill-foundation'],
+    summaryZh:
+      '魏玛晚期的歌舞厅、政治剧场、爵士和现代主义音乐仍然活跃，但 1933 年后很快被文化准入和审查制度重排。音乐场所不再只是娱乐空间，也成为身份筛选和意识形态控制的一部分。',
+    summaryEn:
+      'Late-Weimar cabaret, political theatre, jazz, and modernist music were still active, but after 1933 they were rapidly reorganized by cultural admission rules and censorship. Music venues stopped being only entertainment spaces and became part of identity screening and ideological control.',
+    historicalContextZh:
+      '这个阶段的关键不是某一种声音兴起，而是许多可能性被切断。纳粹文化制度把魏玛的都市讽刺、犹太音乐家、左翼剧场和爵士传统标记为需要排除的对象，德国音乐的公共空间因此变窄。',
+    historicalContextEn:
+      'The key here is not the rise of one sound, but the shutting down of many possibilities. Nazi cultural policy marked Weimar urban satire, Jewish musicians, left theatre, and jazz as targets for exclusion, narrowing Germany’s public musical space.',
+    representativeSongs: [phaseSongCatalog.mackKnife],
+  },
+  [getPhaseReferenceKey('de', 1936)]: {
+    sourceIds: ['ushmm-degenerate-art', 'iwm-lale'],
+    audioClipIds: ['clip-lili-marleen'],
+    summaryZh:
+      '纳粹政权一面压制所谓“堕落音乐”，一面保留经过筛选的轻音乐、广播乐队和士兵歌曲。官方控制并不意味着日常娱乐消失，而是娱乐被放进可管理、可审查、可服务士气的框架。',
+    summaryEn:
+      'The Nazi regime suppressed so-called degenerate music while retaining filtered light music, radio orchestras, and soldier songs. Control did not erase everyday entertainment; it placed entertainment inside manageable, censorable, morale-serving frames.',
+    historicalContextZh:
+      '1936 年后的德国声景和扩军、仪式政治、广播普及绑在一起。进行曲和典礼声当然重要，但《Lili Marleen》这类歌也提醒我，士兵和听众会把官方系统中的歌曲听成私人情绪，甚至跨过敌对战线。',
+    historicalContextEn:
+      'After 1936, Germany’s soundscape was tied to rearmament, ceremonial politics, and radio expansion. Marches and official ceremony mattered, but songs like "Lili Marleen" show that soldiers and listeners could hear private feeling inside official systems, even across enemy lines.',
+    representativeSongs: [phaseSongCatalog.liliMarleen],
+  },
+  [getPhaseReferenceKey('de', 1944)]: {
+    sourceIds: ['ushmm-degenerate-art', 'britannica-ve-day'],
+    summaryZh:
+      '战争末期和战败后，占领区电台、去纳粹化和文化重建迫使德国音乐重新定位。爵士、室内乐、公共广播和被驱逐的魏玛传统重新出现，音乐成为和过去切开关系的一种公共练习。',
+    summaryEn:
+      'In the last war years and after defeat, occupation radio, denazification, and cultural rebuilding forced German music to reposition itself. Jazz, chamber music, public broadcasting, and displaced Weimar traditions returned, making music a public exercise in separation from the Nazi past.',
+    historicalContextZh:
+      '这个阶段不是简单的“战后复苏”，而是文化合法性的重建。被禁、流亡或边缘化的声音重新进入公共生活，德国听众也必须学习如何把娱乐、现代性和政治责任重新放在一起。',
+    historicalContextEn:
+      'This is not simply postwar recovery, but a rebuilding of cultural legitimacy. Banned, exiled, or marginalized sounds reentered public life, and German listeners had to relearn how entertainment, modernity, and political responsibility could sit together.',
+    representativeSongs: [phaseSongCatalog.mackKnife],
+  },
+  [getPhaseReferenceKey('su', 1931)]: {
+    sourceIds: ['britannica-russia-music'],
+    summaryZh:
+      '社会主义现实主义确立后，国家合唱、群众歌曲和民间旋律改编变得更制度化。歌曲要容易学、容易合唱，也要能在学校、工厂、军队和节庆中承担集体教育功能。',
+    summaryEn:
+      'After socialist realism consolidated, state choirs, mass songs, and arranged folk melodies became more institutionalized. Songs had to be easy to learn and sing, and useful for collective education in schools, factories, the army, and festivals.',
+    historicalContextZh:
+      '苏联战时歌曲的力量来自战前已经搭好的组织体系。1930 年代的合唱团、广播、电影音乐和群众活动先训练了“集体发声”的方式，巴巴罗萨之后这些形式才会迅速转为防御和牺牲叙事。',
+    historicalContextEn:
+      'The force of Soviet wartime song came from institutions already built before the war. Choirs, radio, film music, and mass activity in the 1930s trained modes of collective voice, which could then turn quickly toward defense and sacrifice after Barbarossa.',
+    representativeSongs: [phaseSongCatalog.katyusha],
+  },
+  [getPhaseReferenceKey('su', 1939)]: {
+    sourceIds: ['britannica-russia-music', 'britannica-stalingrad', 'iwm-blue-scarf'],
+    audioClipIds: ['clip-blue-scarf'],
+    summaryZh:
+      '巴巴罗萨行动后，苏联歌曲把“祖国”“母亲”“前线”和“牺牲”唱得非常直接。电影、广播、军队文工团和大型合唱一起把战争危机转成可传唱的公共声音。',
+    summaryEn:
+      'After Operation Barbarossa, Soviet songs made homeland, mother, front line, and sacrifice extremely direct. Film, radio, army ensembles, and mass chorus together turned wartime crisis into singable public sound.',
+    historicalContextZh:
+      '卫国战争歌曲不是单纯宣传口号，它们把真实战局压力和国家叙事绑在一起。斯大林格勒这样的转折点让“坚持”和“反攻”有了具体历史重量，庄严合唱和前线抒情因此都变得有说服力。',
+    historicalContextEn:
+      'Great Patriotic War songs were not simply slogans; they bound real military pressure to state narrative. Turning points such as Stalingrad gave endurance and counterattack concrete historical weight, making both solemn chorus and front-line lyricism persuasive.',
+    representativeSongs: [phaseSongCatalog.sacredWar],
+  },
+  [getPhaseReferenceKey('su', 1946)]: {
+    sourceIds: ['britannica-russia-music'],
+    summaryZh:
+      '战后苏联继续使用英雄化和纪念性的歌曲语气，但冷战和文化整肃也让音乐空间重新收紧。胜利庆典、烈士记忆、电影歌曲和官方节庆共同塑造了战后的庄严调门。',
+    summaryEn:
+      'Postwar Soviet music kept heroic and commemorative tones, while Cold War tension and cultural tightening narrowed musical space again. Victory celebration, martyr memory, film song, and official festivals shaped the solemn postwar register.',
+    historicalContextZh:
+      '胜利没有让战争歌曲立刻退场。相反，战争记忆被继续整理成国家身份的一部分，私人抒情和宏大合唱都被用来证明牺牲的意义，同时也预示冷战时期更严格的文化边界。',
+    historicalContextEn:
+      'Victory did not make war songs disappear. Instead, war memory was reorganized as part of state identity; private lyric and grand chorus both helped justify sacrifice while also foreshadowing stricter Cold War cultural boundaries.',
+    representativeSongs: [phaseSongCatalog.darkNight],
+  },
+  [getPhaseReferenceKey('fr', 1931)]: {
+    sourceIds: ['britannica-django', 'gallica-damia'],
+    summaryZh:
+      '战前巴黎同时有歌舞厅香颂、左岸实验、吉普赛爵士和殖民都市音乐。人民阵线、经济压力和国际紧张没有让夜生活停止，反而让私人情绪、讽刺和城市气质更集中地进入歌曲。',
+    summaryEn:
+      'Prewar Paris held cabaret chanson, Left Bank experiment, gypsy jazz, and colonial urban music at once. The Popular Front, economic pressure, and international tension did not stop nightlife; they concentrated private feeling, satire, and urban attitude inside song.',
+    historicalContextZh:
+      '法国风格不是一条单线，而是城市空间里的多种声音并存。正因为战前巴黎有咖啡馆、俱乐部、剧场和唱片业，占领时期的审查和隐喻才会显得那么强烈。',
+    historicalContextEn:
+      'French style is not one line but several sounds sharing urban space. Because prewar Paris had cafes, clubs, theatres, and records, occupation-era censorship and metaphor later felt especially charged.',
+    representativeSongs: [phaseSongCatalog.jattendrai],
+  },
+  [getPhaseReferenceKey('fr', 1939)]: {
+    sourceIds: ['britannica-edith-piaf', 'gallica-damia'],
+    summaryZh:
+      '占领、维希审查和物资短缺让法国歌曲里的等待、夜晚、私人恋情和城市记忆有了新的重量。香颂不能总是直接说政治，但可以把压抑、盼望和身份感藏进熟悉的旋律。',
+    summaryEn:
+      'Occupation, Vichy censorship, and shortages gave waiting, night, private love, and city memory new weight in French song. Chanson could not always speak politics directly, but it could place pressure, hope, and identity inside familiar melody.',
+    historicalContextZh:
+      '这个阶段最能说明历史事件怎样改变“同一类歌曲”的听法。爱情歌和等待歌在占领中不再只是私人题材，它们也可能成为记忆巴黎、想象解放和保留自我声音的方式。',
+    historicalContextEn:
+      'This phase shows how events change the way the same kind of song is heard. Love songs and waiting songs under occupation were no longer only private topics; they could preserve Paris, imagine liberation, and keep a self-sound alive.',
+    representativeSongs: [phaseSongCatalog.laVie],
+  },
+  [getPhaseReferenceKey('fr', 1945)]: {
+    sourceIds: ['britannica-edith-piaf', 'britannica-django'],
+    audioClipIds: ['clip-la-vie-en-rose'],
+    summaryZh:
+      '巴黎解放后，盟军爵士、法国香颂和重新开放的夜生活一起形成新的城市声景。歌曲开始把解放庆祝、战时记忆和国际舞台连接起来，巴黎也重新成为跨国音乐交流的节点。',
+    summaryEn:
+      'After the Liberation of Paris, Allied jazz, French chanson, and reopened nightlife formed a new urban soundscape. Songs linked liberation celebration, wartime memory, and the international stage, making Paris a transnational music node again.',
+    historicalContextZh:
+      '解放不是把时钟拨回战前，而是让法国音乐带着占领记忆重新出发。咖啡馆、唱片、广播和外国音乐家回到城市，香颂里的私人情绪也获得了更公开的历史含义。',
+    historicalContextEn:
+      'Liberation did not simply reset the clock to prewar life; French music restarted with occupation memory inside it. Cafes, records, radio, and foreign musicians returned, and private feeling in chanson gained a more public historical meaning.',
+    representativeSongs: [phaseSongCatalog.fleurParis],
+  },
+  [getPhaseReferenceKey('it', 1931)]: {
+    sourceIds: ['italy-music-britannica', 'canzoneitaliana-faccetta-nera'],
+    audioClipIds: ['clip-faccetta-nera'],
+    summaryZh:
+      '意大利战前音乐一边保留轻歌剧和抒情流行，一边被法西斯仪式、殖民战争和国家广播重排。官方秩序和大众娱乐并行，使宣传歌曲能借用非常易记的流行旋律。',
+    summaryEn:
+      'Prewar Italian music preserved operetta and lyrical pop while being reorganized by Fascist ceremony, colonial war, and state radio. Official order and popular entertainment coexisted, allowing propaganda songs to borrow memorable pop melody.',
+    historicalContextZh:
+      '这里必须把音乐和殖民历史放在一起看。《Faccetta Nera》这类歌曲说明，法西斯政治不是只靠演说和队列，也靠旋律把暴力叙事包装成可唱、可传播的娱乐。',
+    historicalContextEn:
+      'Music here has to be read with colonial history. Songs such as "Faccetta Nera" show that Fascist politics did not rely only on speeches and formations; melody packaged violent narratives as singable, circulating entertainment.',
+    representativeSongs: [phaseSongCatalog.faccettaNera],
+  },
+  [getPhaseReferenceKey('it', 1939)]: {
+    sourceIds: ['italy-music-britannica', 'britannica-world-war-ii'],
+    summaryZh:
+      '战争压力、轰炸、倒戈和内战让意大利声音从整齐的国家仪式裂开。官方广播之外，地方歌曲、游击队改词和反法西斯合唱把音乐带进更破碎也更真实的社会经验。',
+    summaryEn:
+      'War pressure, bombing, regime collapse, and civil conflict fractured the neat sound of national ceremony. Beyond official radio, regional songs, partisan retexting, and anti-Fascist chorus carried music into a more broken and more real social experience.',
+    historicalContextZh:
+      '意大利战时音乐最重要的不是“宣传变多”，而是同一片土地上出现了对立的声音。轴心仪式、地方生存和游击队歌唱互相拉扯，歌曲因此成为政治选择和群体身份的标记。',
+    historicalContextEn:
+      'The key in wartime Italy is not only more propaganda, but opposing sounds on the same ground. Axis ceremony, local survival, and partisan singing pulled against each other, making song a marker of political choice and group identity.',
+    representativeSongs: [phaseSongCatalog.fischia],
+  },
+  [getPhaseReferenceKey('it', 1946)]: {
+    sourceIds: ['italy-music-britannica', 'britannica-marshall-plan'],
+    summaryZh:
+      '共和国建立、电影新现实主义、广播恢复和节庆文化让意大利流行歌转向重建后的大众抒情。反法西斯记忆没有消失，而是和电影、地方身份、节日舞台一起进入战后公共文化。',
+    summaryEn:
+      'The new republic, neorealist cinema, restored radio, and festival culture moved Italian popular song toward postwar lyrical mass culture. Anti-Fascist memory did not disappear; it entered public culture through film, local identity, and festival stages.',
+    historicalContextZh:
+      '战后意大利的声音需要同时处理两件事：摆脱法西斯仪式，又重新建立大众娱乐。歌曲因此既有私人抒情，也有抵抗记忆，成为社会重建的一种温和但持续的语言。',
+    historicalContextEn:
+      'Postwar Italian sound had to do two things at once: leave Fascist ceremony behind and rebuild popular entertainment. Song therefore carried both private lyricism and resistance memory, becoming a gentle but persistent language of social reconstruction.',
+    representativeSongs: [phaseSongCatalog.bellaCiao],
+  },
+  [getPhaseReferenceKey('jp', 1931)]: {
+    sourceIds: ['japan-war-song-study'],
+    summaryZh:
+      '战前日本流行歌、电影歌曲和都会录音仍然有强烈城市气息，但九一八之后，广播审查、唱片检阅和帝国扩张已经开始改变它们的方向。都市流行和国家动员在同一条时间线上相互靠近。',
+    summaryEn:
+      'Prewar Japanese popular song, film song, and urban recording still sounded strongly metropolitan, but after Mukden, broadcast review, record inspection, and imperial expansion began changing their direction. Urban pop and state mobilization moved closer on the same timeline.',
+    historicalContextZh:
+      '这个阶段不能只看东京的现代都市感，也要看到它旁边正在形成的战争制度。日本流行音乐的节奏、明星和电影工业没有消失，但它们越来越需要通过审查和国策话语。',
+    historicalContextEn:
+      'This phase cannot be read only through Tokyo modernity; the war system forming beside it matters. The rhythms, stars, and film industry of Japanese pop did not vanish, but they increasingly had to pass through censorship and policy language.',
+    representativeSongs: [phaseSongCatalog.aikoku],
+  },
+  [getPhaseReferenceKey('jp', 1938)]: {
+    sourceIds: ['japan-war-song-study'],
+    summaryZh:
+      '全面侵华后，日本把国策歌谣、军歌、广播节目和带乡愁的流行歌一起纳入动员系统。强硬的国家口号和柔软的家庭情绪并存，都是为了维持长期战争中的服从和情绪管理。',
+    summaryEn:
+      'After the full-scale war in China, Japan folded policy songs, military songs, radio programs, and nostalgic pop into the mobilization system. Hard state slogans and softer family feeling coexisted as tools of obedience and emotional management in long war.',
+    historicalContextZh:
+      '日本战时音乐的发展和亚洲战局扩张直接相连。歌曲既要把战争说成国家使命，也要用乡愁、家庭和牺牲来处理普通听众的疲惫，这让流行歌成为动员的一部分。',
+    historicalContextEn:
+      'Japanese wartime musical development was directly tied to the expansion of war in Asia. Songs had to frame war as national mission while using nostalgia, family, and sacrifice to manage listener fatigue, making popular song part of mobilization.',
+    representativeSongs: [phaseSongCatalog.aikoku],
+  },
+  [getPhaseReferenceKey('jp', 1946)]: {
+    sourceIds: ['nippon-kasagi', 'britannica-vj-day'],
+    audioClipIds: ['clip-tokyo-boogie'],
+    summaryZh:
+      '投降和占领改变了日本流行音乐的方向。占领军广播、夜总会、舞台表演和唱片工业让爵士与布吉重新流行，旧的都会流行被改造成战后恢复、消费和城市活力的声音。',
+    summaryEn:
+      'Surrender and occupation changed Japanese popular music’s direction. Occupation radio, clubs, stage performance, and records brought jazz and boogie back, reshaping older urban pop into a sound of recovery, consumption, and city energy.',
+    historicalContextZh:
+      '这里的“再流行化”不是简单复古，而是战败后的社会重新定向。美国音乐语汇通过占领结构进入东京，同时日本歌手和制作人把它翻译成自己的舞台能量和战后日常。',
+    historicalContextEn:
+      'This repopularization was not simple nostalgia, but social reorientation after defeat. American musical vocabulary entered Tokyo through occupation structures, while Japanese singers and producers translated it into their own stage energy and postwar everyday life.',
+    representativeSongs: [phaseSongCatalog.tokyoBoogie],
+  },
+  [getPhaseReferenceKey('cn', 1931)]: {
+    sourceIds: ['hkfa-zhou-symposium', 'hkfa-zhou'],
+    summaryZh:
+      '上海时代曲、电影歌曲、唱片公司和夜总会构成了战前中国最现代的声音网络。但九一八之后，都市娱乐旁边迅速出现救亡、流亡和民族危机的歌曲线索，都会录音不再能和战争背景分开。',
+    summaryEn:
+      'Shanghai shidaiqu, film song, record companies, and nightclubs formed one of prewar China’s most modern sound networks. After Mukden, however, salvation, exile, and national crisis songs quickly appeared beside urban entertainment, making recorded city sound inseparable from war context.',
+    historicalContextZh:
+      '这个阶段最有张力的地方，是都市消费和救亡动员同时存在。周璇式的影歌工业说明上海仍然现代而商业化，但长城、流亡和抗敌意象已经开始改写中国歌曲的公共功能。',
+    historicalContextEn:
+      'The tension here is that urban consumption and national salvation existed at the same time. Zhou Xuan-style film song shows Shanghai remained modern and commercial, while Great Wall, exile, and anti-invasion imagery began rewriting the public function of Chinese song.',
+    representativeSongs: [phaseSongCatalog.greatWall],
+  },
+  [getPhaseReferenceKey('cn', 1937)]: {
+    sourceIds: ['china-resistance-songs', 'icm-xian'],
+    summaryZh:
+      '全面抗战后，音乐人、学生团体、剧团和学校随战争向内地移动。抗战歌曲和大型合唱不只是作品，也成为募捐、宣传、教育和群众动员的方法，把音乐直接放进救亡行动。',
+    summaryEn:
+      'After full-scale war began, musicians, student groups, troupes, and schools moved inland with the conflict. Resistance songs and large choruses were not only works; they became methods for fundraising, propaganda, education, and mass mobilization, placing music inside national survival action.',
+    historicalContextZh:
+      '中国抗战音乐的发展和迁徙经验密不可分。战火改变了谁在唱、在哪里唱、为什么唱；短小歌曲适合行军和宣传，大型合唱则把民族危机写成集体身体能够发出的声音。',
+    historicalContextEn:
+      'Chinese resistance music was inseparable from displacement. War changed who sang, where they sang, and why they sang. Compact songs worked for marching and propaganda, while large chorus turned national crisis into a sound that collective bodies could produce.',
+    representativeSongs: [phaseSongCatalog.guerrillas, phaseSongCatalog.yellowRiver],
+  },
+  [getPhaseReferenceKey('cn', 1946)]: {
+    sourceIds: ['hkfa-zhou', 'britannica-prc'],
+    audioClipIds: ['clip-song-of-a-songstress'],
+    summaryZh:
+      '战后中国的电影歌曲、广播歌曲、地方音乐和群众合唱并行发展，又被内战和政权更替重新分流。到 1949 年，抗战时期形成的合唱、动员和公共歌曲经验被放进新的国家叙事。',
+    summaryEn:
+      'Postwar China saw film songs, broadcast songs, local music, and mass chorus develop side by side, then split again under civil war and regime change. By 1949, chorus, mobilization, and public-song practices formed during the resistance years were folded into a new state narrative.',
+    historicalContextZh:
+      '这个阶段不是简单从“战时”进入“和平”。影歌工业仍在延续，群众音乐也在政治重组中获得新位置。像《义勇军进行曲》这样的歌曲，意义从抗战现场转向国家象征，说明音乐会随着历史节点改变身份。',
+    historicalContextEn:
+      'This phase is not a simple move from war into peace. Film-song industries continued, while mass music gained new political positions. A song such as "March of the Volunteers" shifted from wartime scene to state symbol, showing how music changes identity at historical turning points.',
+    representativeSongs: [phaseSongCatalog.marchVolunteers],
+  },
+}
+
+const baseEventMediaById: Record<string, EntityMediaLinks> = {
+  'mukden-incident': {
+    sourceIds: ['britannica-mukden'],
+  },
+  'reich-chamber': {
+    sourceIds: ['ushmm-degenerate-art'],
+  },
+  'rome-berlin-axis': {
+    sourceIds: ['britannica-axis'],
+  },
+  'second-sino-japanese-war': {
+    sourceIds: ['britannica-second-sino-war', 'china-resistance-songs'],
+  },
+  'europe-war': {
+    sourceIds: ['britannica-world-war-ii'],
+  },
+  barbarossa: {
+    sourceIds: ['britannica-barbarossa'],
+  },
+  'pearl-harbor': {
+    sourceIds: ['britannica-pearl-harbor', 'loc-soundtrack-wwii'],
+  },
+  stalingrad: {
+    sourceIds: ['britannica-stalingrad'],
+  },
+  'liberation-paris': {
+    sourceIds: ['britannica-liberation-paris', 'britannica-edith-piaf'],
+  },
+  'germany-surrender': {
+    sourceIds: ['britannica-ve-day'],
+  },
+  'japan-surrender': {
+    sourceIds: ['britannica-vj-day'],
+  },
+  'marshall-broadcast': {
+    sourceIds: ['britannica-marshall-plan'],
+    audioClipIds: ['clip-sinews-of-peace'],
+  },
+  'prc-founding': {
+    sourceIds: ['britannica-prc', 'china-resistance-songs'],
+  },
+}
+
+export const eventMediaById = Object.fromEntries(
+  Object.entries(baseEventMediaById).map(([eventId, media]) => [
+    eventId,
+    {
+      ...eventEnhancementsById[eventId],
+      ...media,
+    },
+  ]),
+) as Record<string, EntityMediaLinks>
+
+export const artistMediaById: Record<string, EntityMediaLinks> = {
+  'benny-goodman': {
+    summaryZh: 'Benny Goodman 的资料帮助我理解美国摇摆乐怎样通过大乐队、广播和舞厅传到全国。',
+    summaryEn: 'Benny Goodman helps me understand how U.S. swing traveled through big bands, radio, and dance halls.',
+    sourceIds: ['britannica-benny-goodman', 'loc-recorded-sound'],
+  },
+  'andrews-sisters': {
+    summaryZh: '安德鲁斯姐妹的和声和节奏感，能说明美国战时士气歌曲怎样靠军中演出和唱片传播。',
+    summaryEn: 'The Andrews Sisters show how U.S. morale songs spread through troop entertainment and records.',
+    sourceIds: ['loc-vdisc-registry', 'loc-soundtrack-wwii'],
+    audioClipIds: ['clip-uncle-sam-blues'],
+  },
+  'vera-lynn': {
+    summaryZh: 'Vera Lynn 的广播和慰问演出，是我理解英国战时“离别/重逢”情绪的主要线索。',
+    summaryEn: 'Vera Lynn’s broadcasts and morale performances are my main trail for Britain’s wartime separation-and-reunion songs.',
+    sourceIds: ['britannica-vera-lynn', 'iwm-sound'],
+    audioClipIds: ['clip-well-meet-again'],
+  },
+  'kurt-weill': {
+    summaryZh: 'Kurt Weill 的线索把魏玛都市音乐、政治剧场和流亡后的跨大西洋创作连了起来。',
+    summaryEn: 'Kurt Weill links late-Weimar urban music, political theatre, and his later transatlantic exile work.',
+    sourceIds: ['kurt-weill-foundation', 'ushmm-degenerate-art'],
+  },
+  'lale-andersen': {
+    summaryZh: 'Lale Andersen 的《Lili Marleen》很特别，因为它在 1940 年代被敌对阵营的士兵都听到。',
+    summaryEn: 'Lale Andersen’s “Lili Marleen” is unusual because soldiers on opposing sides heard it during the 1940s.',
+    sourceIds: ['iwm-lale'],
+    audioClipIds: ['clip-lili-marleen'],
+  },
+  'klavdiya-shulzhenko': {
+    summaryZh: 'Klavdiya Shulzhenko 的资料让我看到，苏联前线歌曲也可以很抒情，不只有庄严合唱。',
+    summaryEn: 'Klavdiya Shulzhenko shows that Soviet frontline song could be lyrical as well as solemn.',
+    sourceIds: ['britannica-russia-music', 'britannica-stalingrad', 'iwm-blue-scarf'],
+    audioClipIds: ['clip-blue-scarf'],
+  },
+  'edith-piaf': {
+    summaryZh: 'Edith Piaf 的资料把巴黎街头香颂、占领时期的复杂处境和解放后的国际舞台连在一起。',
+    summaryEn: 'Edith Piaf links Paris street chanson, the complicated occupation years, and the international stage after liberation.',
+    sourceIds: ['britannica-edith-piaf', 'gallica-damia'],
+    audioClipIds: ['clip-la-vie-en-rose'],
+  },
+  'django-reinhardt': {
+    summaryZh: 'Django Reinhardt 这条线索说明，巴黎俱乐部爵士和吉普赛爵士在战争前后都没有消失。',
+    summaryEn: 'Django Reinhardt shows that Paris club jazz and gypsy jazz did not disappear around the war years.',
+    sourceIds: ['britannica-django', 'gallica-damia'],
+  },
+  'carlo-buti': {
+    summaryZh: 'Carlo Buti 帮我看意大利早期广播时代的抒情流行歌，也能对照官方仪式和大众娱乐怎样并行。',
+    summaryEn: 'Carlo Buti helps me read early radio-era Italian lyrical pop, alongside official ceremony and mass entertainment.',
+    sourceIds: ['italy-music-britannica', 'canzoneitaliana-faccetta-nera'],
+    audioClipIds: ['clip-faccetta-nera'],
+  },
+  'nilla-pizzi': {
+    summaryZh: 'Nilla Pizzi 的战后资料说明，意大利流行歌慢慢从仪式广播转向节庆和大众抒情歌。',
+    summaryEn: 'Nilla Pizzi’s postwar trail shows Italian song moving from ceremonial radio toward festivals and lyrical pop.',
+    sourceIds: ['italy-music-britannica', 'britannica-marshall-plan'],
+  },
+  'noriko-awaya': {
+    summaryZh: '淡谷纪子的都会抒情唱法，可以放在战前日本都市流行歌、电影歌曲和文化管制之间看。',
+    summaryEn: 'Noriko Awaya’s urban melancholy singing sits between prewar Japanese pop, film song, and tightening cultural control.',
+    sourceIds: ['japan-war-song-study'],
+  },
+  'shizuko-kasagi': {
+    summaryZh: '笠置静子的 boogie 节奏和舞台能量，是我理解战后日本都市娱乐复苏的一条线索。',
+    summaryEn: 'Shizuko Kasagi’s boogie rhythm and stage energy are one trail for Japan’s postwar urban entertainment revival.',
+    sourceIds: ['nippon-kasagi'],
+    audioClipIds: ['clip-tokyo-boogie'],
+  },
+  'zhou-xuan': {
+    summaryZh: '周璇的资料把上海时代曲、电影歌曲和战后影歌工业的南迁放到同一条线上。',
+    summaryEn: 'Zhou Xuan connects Shanghai shidaiqu, film song, and the southward shift of postwar film-music production.',
+    sourceIds: ['hkfa-zhou', 'hkfa-zhou-symposium'],
+    audioClipIds: ['clip-song-of-a-songstress'],
+  },
+  'xian-xinghai': {
+    summaryZh: '冼星海的资料帮助我理解，中国抗战时期为什么大型合唱会变成公共动员的一部分。',
+    summaryEn: 'Xian Xinghai helps me understand why large choruses became part of public mobilization in wartime China.',
+    sourceIds: ['icm-xian', 'china-resistance-songs'],
+  },
+}
+
+export const bibliographySections: BibliographySection[] = [
+  {
+    id: 'methodology',
+    titleZh: '我怎么查资料',
+    titleEn: 'How I checked sources',
+    descriptionZh: '我优先使用国家馆藏、博物馆、基金会和开放获取研究，再按风格阶段、历史事件和艺术家地图钉整理。能合法外链音频时才放播放器；如果馆藏不能嵌入播放，或权利状态不清楚，就只保留馆藏记录链接。',
+    descriptionEn: 'I used national archives, museums, foundations, and open-access scholarship first, then sorted them by style phase, historic event, and artist pin. I only added a player when lawful external playback was available; otherwise I kept an archive-record link.',
+    sourceIds: ['loc-soundtrack-wwii', 'iwm-sound', 'china-resistance-songs'],
+  },
+  {
+    id: 'archives',
+    titleZh: '主要馆藏与档案',
+    titleEn: 'Main Archives and Collections',
+    descriptionZh: '这些馆藏是我查音频和原始记录的主要入口，尤其适合核对战时广播、录音流通和战后重建。',
+    descriptionEn: 'These collections are my main entry points for audio and primary records, especially for checking wartime broadcasting, recording circulation, and postwar reconstruction.',
+    sourceIds: ['loc-recorded-sound', 'iwm-sound', 'gallica-damia', 'hkfa-zhou', 'icm-xian'],
+  },
+  {
+    id: 'reference-history',
+    titleZh: '历史与人物参考',
+    titleEn: 'Historical and Biographical References',
+    descriptionZh: '通史、人物条目和专题文章用来核对时间线、人物位置和跨国传播背景。',
+    descriptionEn: 'General history, biography, and topic essays help me check the timeline, place historical figures, and understand cross-border circulation.',
+    sourceIds: ['britannica-world-war-ii', 'britannica-vera-lynn', 'britannica-edith-piaf', 'britannica-prc'],
+  },
+]

@@ -1,0 +1,62 @@
+:root {
+  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #ece2d0;
+  background:
+    radial-gradient(circle at top, rgba(176, 113, 54, 0.16), transparent 38%),
+    radial-gradient(circle at 85% 15%, rgba(94, 121, 140, 0.18), transparent 24%),
+    linear-gradient(180deg, #070a0f 0%, #0d1218 48%, #121922 100%);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --atlas-line: rgba(231, 213, 182, 0.14);
+  --atlas-text: #efe4d0;
+  --atlas-muted: rgba(239, 228, 208, 0.72);
+  --atlas-accent: #c98f58;
+  --atlas-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(circle at center, black 24%, transparent 86%);
+  opacity: 0.45;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+a {
+  color: inherit;
+}

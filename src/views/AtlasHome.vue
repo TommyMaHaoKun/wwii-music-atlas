@@ -403,7 +403,7 @@ onBeforeUnmount(() => {
     </section>
 
     <section class="band events-section" data-testid="home-event-rail" aria-label="Key event timeline">
-      <header class="section-head">
+      <header v-reveal class="section-head">
         <p class="kicker">{{ atlas.language.value === 'zh' ? '关键事件时间轴' : 'Key Event Timeline' }}</p>
         <h2>{{ atlas.language.value === 'zh' ? '重大事件' : 'Key Events' }}</h2>
       </header>
@@ -411,6 +411,7 @@ onBeforeUnmount(() => {
         <button
           v-for="event in atlas.historicEvents"
           :key="event.id"
+          v-reveal
           type="button"
           class="event-card"
           :class="{
@@ -435,7 +436,7 @@ onBeforeUnmount(() => {
     </section>
 
     <section class="band process-section" data-testid="home-connection-chain" aria-label="Development process">
-      <header class="section-head">
+      <header v-reveal class="section-head">
         <p class="kicker">{{ atlas.language.value === 'zh' ? '发展过程' : 'Development Process' }}</p>
         <h2>{{ atlas.language.value === 'zh' ? '从事件到声音' : 'From events to sound' }}</h2>
       </header>
@@ -444,6 +445,7 @@ onBeforeUnmount(() => {
         <button
           v-for="(chapter, index) in atlas.chapterScenes"
           :key="chapter.id"
+          v-reveal="index * 60"
           type="button"
           :class="{ active: chapter.id === atlas.activeChapter.value.id }"
           @click="atlas.jumpChapter(chapter.id)"
@@ -454,10 +456,10 @@ onBeforeUnmount(() => {
         </button>
       </div>
 
-      <p class="chapter-detail">{{ getChapterDetail(atlas.activeChapter.value) }}</p>
+      <p v-reveal class="chapter-detail">{{ getChapterDetail(atlas.activeChapter.value) }}</p>
 
       <div class="chain-steps">
-        <article v-for="(point, index) in atlas.activeChapter.value.evidencePoints" :key="point.kind">
+        <article v-for="(point, index) in atlas.activeChapter.value.evidencePoints" :key="point.kind" v-reveal="index * 90">
           <span>{{ String(index + 1).padStart(2, '0') }}</span>
           <small>{{ getEvidenceLabel(point) }}</small>
           <strong>{{ getEvidenceTitle(point) }}</strong>
@@ -476,14 +478,15 @@ onBeforeUnmount(() => {
     </section>
 
     <section class="band artists-section" data-testid="home-artist-dock" aria-label="Linked artists">
-      <header class="section-head">
+      <header v-reveal class="section-head">
         <p class="kicker">{{ atlas.language.value === 'zh' ? '相关音乐家' : 'Linked Artists' }}</p>
         <h2>{{ atlas.language.value === 'zh' ? '谁在唱，谁在写' : 'Who sang, who wrote' }}</h2>
       </header>
       <div class="artist-grid">
         <button
-          v-for="artist in evidenceArtists"
+          v-for="(artist, index) in evidenceArtists"
           :key="artist.id"
+          v-reveal="index * 60"
           type="button"
           :class="{ active: artist.id === atlas.selectedArtistId.value }"
           @click="openArtist(artist.id)"
@@ -499,11 +502,11 @@ onBeforeUnmount(() => {
     </section>
 
     <section class="band sound-section" data-testid="home-sound-sync" aria-label="Soundtrack link">
-      <header class="section-head">
+      <header v-reveal class="section-head">
         <p class="kicker">{{ atlas.language.value === 'zh' ? '声音' : 'Soundtrack' }}</p>
         <h2>{{ atlas.language.value === 'zh' ? '让画面听得见' : 'Hear the map' }}</h2>
       </header>
-      <div class="sound-layout">
+      <div v-reveal class="sound-layout">
         <BackgroundMusicPlayer
           v-if="!isMobile"
           :language="atlas.language.value"

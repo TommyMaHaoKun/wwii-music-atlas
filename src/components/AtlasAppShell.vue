@@ -58,12 +58,61 @@ function linkHref(path: AtlasRoutePath) {
     </header>
 
     <slot />
+
+    <footer class="site-footer">
+      <p>
+        {{ atlas.language.value === 'zh' ? '历史国界' : 'Historical borders' }}:
+        <a href="https://github.com/aourednik/historical-basemaps" target="_blank" rel="noopener noreferrer">historical-basemaps</a>
+        (1938 / 1945, GPL-3.0)
+        · {{ atlas.language.value === 'zh' ? '海岸线' : 'Coastlines' }}: Natural Earth
+        · {{ atlas.language.value === 'zh' ? '地球渲染' : 'Globe' }}: globe.gl
+      </p>
+      <p class="footer-note">
+        {{
+          atlas.language.value === 'zh'
+            ? '地图边界按年份显示 1938 或 1945 年的历史政区，用于定位，不代表精确主权。'
+            : 'Borders show 1938 or 1945 political territories by year, for orientation — not precise sovereignty.'
+        }}
+      </p>
+    </footer>
   </div>
 </template>
 
 <style scoped>
 .app-shell {
   min-height: 100vh;
+}
+
+.site-footer {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.35rem;
+  padding: 1.6rem clamp(1.2rem, 5vw, 3rem) 2.2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: #000000;
+  color: var(--atlas-faint);
+  font-size: 0.76rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+.site-footer a {
+  color: var(--atlas-muted);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.site-footer a:hover {
+  color: var(--atlas-text);
+}
+
+.footer-note {
+  color: rgba(245, 245, 247, 0.4);
 }
 
 .site-nav {

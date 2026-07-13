@@ -1,0 +1,42 @@
+import { describe, expect, it } from 'vitest'
+import { matchHistoricalCountryId, pickSnapshotYear } from '@/lib/historicalBorders'
+
+describe('pickSnapshotYear', () => {
+  it('uses the 1938 snapshot up to 1944 and 1945 from then on', () => {
+    expect(pickSnapshotYear(1931)).toBe(1938)
+    expect(pickSnapshotYear(1938)).toBe(1938)
+    expect(pickSnapshotYear(1944)).toBe(1938)
+    expect(pickSnapshotYear(1945)).toBe(1945)
+    expect(pickSnapshotYear(1949)).toBe(1945)
+  })
+})
+
+describe('matchHistoricalCountryId', () => {
+  it('maps the 1938 power names to tracked country ids', () => {
+    expect(matchHistoricalCountryId('United States')).toBe('us')
+    expect(matchHistoricalCountryId('United Kingdom')).toBe('uk')
+    expect(matchHistoricalCountryId('Germany')).toBe('de')
+    expect(matchHistoricalCountryId('USSR')).toBe('su')
+    expect(matchHistoricalCountryId('France')).toBe('fr')
+    expect(matchHistoricalCountryId('Italy')).toBe('it')
+    expect(matchHistoricalCountryId('Empire of Japan')).toBe('jp')
+    expect(matchHistoricalCountryId('Chinese warlords')).toBe('cn')
+  })
+
+  it('maps the 1945 names, including occupation zones', () => {
+    expect(matchHistoricalCountryId('China')).toBe('cn')
+    expect(matchHistoricalCountryId('Japan (USA)')).toBe('jp')
+    expect(matchHistoricalCountryId('Germany (Soviet)')).toBe('de')
+    expect(matchHistoricalCountryId('Germany (UK)')).toBe('de')
+    expect(matchHistoricalCountryId('United Kingdom of Great Britain and Ireland')).toBe('uk')
+  })
+
+  it('does not tint colonies or unrelated regions', () => {
+    expect(matchHistoricalCountryId('French Indo-China')).toBeNull()
+    expect(matchHistoricalCountryId('Italian Somaliland')).toBeNull()
+    expect(matchHistoricalCountryId('British Raj')).toBeNull()
+    expect(matchHistoricalCountryId('Manchuria')).toBeNull()
+    expect(matchHistoricalCountryId(null)).toBeNull()
+    expect(matchHistoricalCountryId('')).toBeNull()
+  })
+})

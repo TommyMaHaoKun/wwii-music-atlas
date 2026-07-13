@@ -7,7 +7,8 @@ import { getArtistName, getArtistNote, getArtistRole, type ArtistWork } from '@/
 import type { CountryProfile, GlobeFocus, HistoricEvent, Language, LayerKey } from '@/data/ww2MusicAtlas'
 import { artistMarkers, getActiveStylePhase, getCountryName, getEventTitle, getStyleName, getVisibleInfluenceArcs, influenceArcs, stylePhases } from '@/lib/atlas'
 import { getEventCategoryConfig, getEventCategoryLabel, type EventCategory } from '@/lib/eventIcons'
-import { createEarthBumpTexture, createEarthTexture, getFeatureForCountry, getWorldCountryFeatures } from '@/lib/globeGeo'
+import { createEarthBumpTexture, createEarthTexture } from '@/lib/globeGeo'
+import { loadHistoricalBorders, matchHistoricalCountryId, pickSnapshotYear, type SnapshotYear } from '@/lib/historicalBorders'
 import {
   buildInfluenceLabels,
   buildInfluenceRenderArcs,
@@ -91,7 +92,8 @@ const container = ref<HTMLDivElement | null>(null)
 const fallback = ref(false)
 const activeInfluenceId = ref<string | null>(null)
 const hoveredInfluenceId = ref<string | null>(null)
-const worldFeatures = getWorldCountryFeatures()
+const historicalFeatures = ref<Feature[]>([])
+let loadedSnapshot: SnapshotYear | null = null
 const eventPinSrc = publicAssetPath('/images/generated/ww2-event-pin.png')
 const artistPinSrc = publicAssetPath('/images/generated/ww2-artist-pin.png')
 
@@ -303,7 +305,30 @@ function escapeHtml(value: string) {
 }
 
 function getCountryForFeature(feature: Feature) {
-  return props.countries.find((country) => getFeatureForCountry(country.id)?.id === feature.id) ?? null
+  const countryId = matchHistoricalCountryId((feature.properties as { NAME?: string } | null)?.NAME)
+  return countryId ? props.countries.find((country) => country.id === countryId) ?? null : null
+}
+
+// Load the historical border snapshot that matches the active year (1938 or
+// 1945) and re-render the globe once it arrives.
+function ensureHistoricalBorders() {
+  const snapshot = pickSnapshotYear(props.activeYear)
+  if (snapshot === loadedSnapshot) {
+    return
+  }
+
+  loadedSnapshot = snapshot
+  loadHistoricalBorders(snapshot)
+    .then((features) => {
+      // Guard against a race if the year moved to another snapshot meanwhile.
+      if (pickSnapshotYear(props.activeYear) === snapshot) {
+        historicalFeatures.value = features
+        syncGlobe()
+      }
+    })
+    .catch(() => {
+      loadedSnapshot = null
+    })
 }
 
 function getPhaseColor(country: CountryProfile) {
@@ -673,7 +698,7 @@ function syncGlobe() {
   }))
 
   globe
-    .polygonsData(worldFeatures)
+    .polygonsData(historicalFeatures.value)
     .polygonCapColor((feature: Feature) => {
       const country = getCountryForFeature(feature)
       if (!country) {
@@ -793,6 +818,7 @@ onMounted(() => {
   addAtmosphereObjects()
   updateSize()
   syncGlobe()
+  ensureHistoricalBorders()
   focusCamera()
 
   resizeObserver = new ResizeObserver(updateSize)
@@ -816,6 +842,7 @@ watch(
     hoveredInfluenceId.value,
   ],
   () => {
+    ensureHistoricalBorders()
     syncGlobe()
   },
 )

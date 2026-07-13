@@ -272,8 +272,8 @@ function getLinkedArtists() {
 
 .route-sidebar,
 .detail-surface {
-  background: rgba(10, 15, 21, 0.72);
-  border: 1px solid rgba(239, 228, 208, 0.1);
+  background: rgba(28, 28, 30, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(16px);
 }
 
@@ -295,7 +295,7 @@ function getLinkedArtists() {
 h1,
 h2 {
   margin: 0;
-  font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   line-height: 1;
 }
 
@@ -323,7 +323,7 @@ p {
   width: 100%;
   max-height: 28rem;
   object-fit: cover;
-  border: 1px solid rgba(239, 228, 208, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .event-figure figcaption,
@@ -331,7 +331,7 @@ p {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
-  color: rgba(239, 228, 208, 0.56);
+  color: rgba(255, 255, 255, 0.56);
   font-size: 0.76rem;
 }
 
@@ -346,7 +346,7 @@ p {
   width: fit-content;
   color: var(--atlas-text);
   text-decoration: none;
-  border-bottom: 1px solid rgba(239, 228, 208, 0.24);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.24);
 }
 
 .detail-section {
@@ -365,7 +365,7 @@ p {
   gap: 0.48rem;
   padding: 0.85rem;
   background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(239, 228, 208, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .linked-artist-grid {
@@ -380,7 +380,7 @@ p {
   gap: 0.7rem;
   padding: 0.75rem;
   background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(239, 228, 208, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .linked-artist-card img {
@@ -396,7 +396,7 @@ p {
 }
 
 .linked-artist-card small {
-  color: #f0cf9f;
+  color: #7cc0ff;
   overflow-wrap: anywhere;
 }
 
@@ -407,7 +407,7 @@ p {
 }
 
 .song-performer {
-  color: rgba(239, 228, 208, 0.82);
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .song-card audio {
@@ -424,7 +424,7 @@ p {
   display: grid;
   gap: 0.2rem;
   padding-top: 0.45rem;
-  border-top: 1px solid rgba(239, 228, 208, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .song-research dt {
@@ -447,7 +447,7 @@ p {
 }
 
 .rights-copy {
-  color: rgba(239, 228, 208, 0.54);
+  color: rgba(255, 255, 255, 0.54);
   font-size: 0.75rem;
   line-height: 1.45;
 }
@@ -459,7 +459,7 @@ p {
 
 .event-index button,
 .affected-list button {
-  border: 1px solid rgba(239, 228, 208, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.035);
   color: var(--atlas-text);
   cursor: pointer;
@@ -475,13 +475,13 @@ p {
 }
 
 .event-index button.active {
-  background: rgba(201, 143, 88, 0.14);
-  border-color: rgba(201, 143, 88, 0.38);
+  background: rgba(41, 151, 255, 0.14);
+  border-color: rgba(41, 151, 255, 0.38);
 }
 
 .event-index span {
   color: var(--atlas-accent);
-  font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-size: 1.2rem;
 }
 
@@ -495,8 +495,8 @@ p {
   position: relative;
   min-height: 25rem;
   overflow: hidden;
-  border: 1px solid rgba(239, 228, 208, 0.1);
-  background: rgba(7, 10, 15, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .detail-surface {

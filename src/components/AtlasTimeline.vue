@@ -167,14 +167,14 @@ function isCurrentEvent(event: HistoricEvent) {
   padding-left: 0.5rem;
   display: flex;
   align-items: center;
-  color: rgba(239, 228, 208, 0.7);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
 .soft { background: linear-gradient(90deg, rgba(122, 166, 193, 0.16), rgba(122, 166, 193, 0.06)); }
-.hot { background: linear-gradient(90deg, rgba(201, 143, 88, 0.22), rgba(201, 143, 88, 0.08)); }
+.hot { background: linear-gradient(90deg, rgba(41, 151, 255, 0.22), rgba(41, 151, 255, 0.08)); }
 .smoke { background: linear-gradient(90deg, rgba(208, 103, 77, 0.22), rgba(208, 103, 77, 0.08)); }
 .light { background: linear-gradient(90deg, rgba(138, 165, 141, 0.2), rgba(138, 165, 141, 0.08)); }
 .dawn { background: linear-gradient(90deg, rgba(148, 180, 199, 0.18), rgba(148, 180, 199, 0.08)); }
@@ -198,7 +198,7 @@ function isCurrentEvent(event: HistoricEvent) {
 
 .lane-body {
   min-height: 2rem;
-  border-top: 1px solid rgba(239, 228, 208, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .phase-span {
@@ -210,7 +210,7 @@ function isCurrentEvent(event: HistoricEvent) {
   padding: 0 0.6rem;
   border: 0;
   background: color-mix(in srgb, var(--phase-color) 26%, transparent);
-  color: rgba(255, 247, 235, 0.92);
+  color: rgba(255, 255, 255, 0.92);
   text-align: left;
   overflow: hidden;
   cursor: pointer;
@@ -225,7 +225,7 @@ function isCurrentEvent(event: HistoricEvent) {
 
 .event-row {
   min-height: 3rem;
-  border-top: 1px solid rgba(239, 228, 208, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .event-pin {
@@ -254,20 +254,20 @@ function isCurrentEvent(event: HistoricEvent) {
   height: 0.7rem;
   border-radius: 999px;
   background: var(--atlas-accent);
-  box-shadow: 0 0 0 0.35rem rgba(201, 143, 88, 0.12);
+  box-shadow: 0 0 0 0.35rem rgba(41, 151, 255, 0.12);
   transition: background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
 .event-pin.passed .pin-dot {
-  background: rgba(201, 143, 88, 0.72);
+  background: rgba(41, 151, 255, 0.72);
 }
 
 .event-pin.current .pin-dot,
 .event-pin.highlighted .pin-dot {
   background: #f2c66f;
   box-shadow:
-    0 0 0 0.35rem rgba(201, 143, 88, 0.2),
-    0 0 1.2rem rgba(242, 198, 111, 0.34);
+    0 0 0 0.35rem rgba(41, 151, 255, 0.2),
+    0 0 1.2rem rgba(124, 192, 255, 0.34);
   transform: scale(1.18);
 }
 
@@ -275,7 +275,7 @@ function isCurrentEvent(event: HistoricEvent) {
   display: block;
   margin-top: 0.55rem;
   width: min(10rem, 22vw);
-  color: rgba(239, 228, 208, 0.72);
+  color: rgba(255, 255, 255, 0.72);
   font-size: 0.7rem;
   line-height: 1.2;
   text-align: center;
@@ -289,7 +289,7 @@ function isCurrentEvent(event: HistoricEvent) {
 .event-pin.highlighted .pin-label,
 .event-pin:hover .pin-label,
 .event-pin:focus-visible .pin-label {
-  color: rgba(255, 244, 221, 0.94);
+  color: rgba(255, 255, 255, 0.94);
   opacity: 1;
 }
 
@@ -302,8 +302,8 @@ function isCurrentEvent(event: HistoricEvent) {
 .play-button {
   min-width: 5.5rem;
   padding: 0.85rem 1rem;
-  border: 1px solid rgba(201, 143, 88, 0.32);
-  background: rgba(201, 143, 88, 0.1);
+  border: 1px solid rgba(41, 151, 255, 0.32);
+  background: rgba(41, 151, 255, 0.1);
   cursor: pointer;
 }
 
@@ -315,7 +315,7 @@ function isCurrentEvent(event: HistoricEvent) {
 
 .year-readout {
   font-size: clamp(1.6rem, 3vw, 2.4rem);
-  font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
 .range {
@@ -325,7 +325,7 @@ function isCurrentEvent(event: HistoricEvent) {
 .year-scale {
   display: flex;
   justify-content: space-between;
-  color: rgba(239, 228, 208, 0.56);
+  color: rgba(255, 255, 255, 0.56);
   font-size: 0.75rem;
 }
 

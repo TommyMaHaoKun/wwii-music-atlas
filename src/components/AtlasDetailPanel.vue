@@ -711,7 +711,7 @@ function handleSourceAudioStop(clipId: string) {
   align-content: start;
   height: 100%;
   padding: 1.1rem 1.15rem 1.35rem;
-  background: linear-gradient(180deg, rgba(10, 15, 21, 0.88), rgba(10, 15, 21, 0.62));
+  background: linear-gradient(180deg, rgba(28, 28, 30, 0.88), rgba(28, 28, 30, 0.62));
   border-left: 1px solid var(--atlas-line);
   backdrop-filter: blur(20px);
   overflow: auto;
@@ -724,7 +724,7 @@ function handleSourceAudioStop(clipId: string) {
   display: grid;
   gap: 0.6rem;
   padding-bottom: 0.2rem;
-  background: linear-gradient(180deg, rgba(10, 15, 21, 0.96), rgba(10, 15, 21, 0.88));
+  background: linear-gradient(180deg, rgba(28, 28, 30, 0.96), rgba(28, 28, 30, 0.88));
 }
 
 .panel-tabs {
@@ -733,7 +733,7 @@ function handleSourceAudioStop(clipId: string) {
   gap: 0.45rem;
   padding: 0.2rem;
   background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(239, 228, 208, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .panel-tab,
@@ -742,7 +742,7 @@ function handleSourceAudioStop(clipId: string) {
   padding: 0.72rem 0.85rem;
   border: 0;
   background: rgba(255, 255, 255, 0.03);
-  color: rgba(239, 228, 208, 0.74);
+  color: rgba(255, 255, 255, 0.74);
   cursor: pointer;
   transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
 }
@@ -750,7 +750,7 @@ function handleSourceAudioStop(clipId: string) {
 .panel-tab.active,
 .bibliography-trigger:hover,
 .bibliography-close:hover {
-  background: rgba(201, 143, 88, 0.16);
+  background: rgba(41, 151, 255, 0.16);
   color: var(--atlas-text);
 }
 
@@ -761,7 +761,7 @@ function handleSourceAudioStop(clipId: string) {
 
 .bibliography-trigger {
   justify-self: start;
-  border: 1px solid rgba(239, 228, 208, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .panel-stack {
@@ -775,13 +775,13 @@ function handleSourceAudioStop(clipId: string) {
   display: grid;
   gap: 0.6rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(239, 228, 208, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .artist-block {
-  background: linear-gradient(180deg, rgba(201, 143, 88, 0.08), rgba(201, 143, 88, 0.02));
+  background: linear-gradient(180deg, rgba(41, 151, 255, 0.08), rgba(41, 151, 255, 0.02));
   padding: 0.95rem;
-  border: 1px solid rgba(201, 143, 88, 0.18);
+  border: 1px solid rgba(41, 151, 255, 0.18);
 }
 
 .artist-profile-head {
@@ -796,7 +796,7 @@ function handleSourceAudioStop(clipId: string) {
   width: 100%;
   aspect-ratio: 3 / 4;
   object-fit: cover;
-  border: 1px solid rgba(239, 228, 208, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .artist-role {
@@ -816,15 +816,15 @@ function handleSourceAudioStop(clipId: string) {
 .section-chip {
   width: fit-content;
   padding: 0.24rem 0.5rem;
-  border: 1px solid rgba(239, 228, 208, 0.12);
-  color: rgba(239, 228, 208, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.82);
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .section-chip--artist {
-  background: rgba(201, 143, 88, 0.14);
+  background: rgba(41, 151, 255, 0.14);
 }
 
 .section-chip--event {
@@ -845,7 +845,7 @@ function handleSourceAudioStop(clipId: string) {
 .source-group h3,
 .bibliography-card h3 {
   margin: 0;
-  font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-size: clamp(1.2rem, 1.8vw, 1.95rem);
   line-height: 1.08;
 }
@@ -874,14 +874,14 @@ function handleSourceAudioStop(clipId: string) {
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
-  border: 1px solid rgba(239, 228, 208, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .event-figure figcaption {
   display: flex;
   flex-wrap: wrap;
   gap: 0.55rem;
-  color: rgba(239, 228, 208, 0.54);
+  color: rgba(255, 255, 255, 0.54);
   font-size: 0.72rem;
 }
 
@@ -892,9 +892,9 @@ function handleSourceAudioStop(clipId: string) {
 }
 
 .event-figure a {
-  color: rgba(239, 228, 208, 0.78);
+  color: rgba(255, 255, 255, 0.78);
   text-decoration: none;
-  border-bottom: 1px solid rgba(239, 228, 208, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .impact-note,
@@ -916,7 +916,7 @@ function handleSourceAudioStop(clipId: string) {
 }
 
 .artist-meta {
-  color: rgba(239, 228, 208, 0.58);
+  color: rgba(255, 255, 255, 0.58);
   font-size: 0.78rem;
 }
 
@@ -927,7 +927,7 @@ function handleSourceAudioStop(clipId: string) {
 }
 
 .list-title {
-  color: rgba(239, 228, 208, 0.54);
+  color: rgba(255, 255, 255, 0.54);
   font-size: 0.74rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -964,7 +964,7 @@ function handleSourceAudioStop(clipId: string) {
   display: inline-flex;
   align-items: center;
   gap: 0.65rem;
-  color: rgba(239, 228, 208, 0.58);
+  color: rgba(255, 255, 255, 0.58);
   transition: color 180ms ease, transform 180ms ease;
 }
 
@@ -988,7 +988,7 @@ function handleSourceAudioStop(clipId: string) {
 }
 
 .source-group--artist {
-  border-left: 2px solid rgba(201, 143, 88, 0.5);
+  border-left: 2px solid rgba(41, 151, 255, 0.5);
   padding-left: 0.7rem;
 }
 
@@ -1012,7 +1012,7 @@ function handleSourceAudioStop(clipId: string) {
   gap: 0.5rem;
   padding: 0.85rem;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(239, 228, 208, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .source-card h4,
@@ -1040,20 +1040,20 @@ function handleSourceAudioStop(clipId: string) {
 .mini-artist-card small {
   display: block;
   margin-top: 0.25rem;
-  color: #f0cf9f;
+  color: #7cc0ff;
   overflow-wrap: anywhere;
 }
 
 .meta-pill {
   padding: 0.18rem 0.45rem;
   background: rgba(255, 255, 255, 0.06);
-  color: rgba(239, 228, 208, 0.78);
+  color: rgba(255, 255, 255, 0.78);
   font-size: 0.72rem;
   text-transform: uppercase;
 }
 
 .meta-pill.primary {
-  background: rgba(201, 143, 88, 0.18);
+  background: rgba(41, 151, 255, 0.18);
   color: var(--atlas-text);
 }
 
@@ -1062,7 +1062,7 @@ function handleSourceAudioStop(clipId: string) {
 }
 
 .card-meta {
-  color: rgba(239, 228, 208, 0.56);
+  color: rgba(255, 255, 255, 0.56);
   font-size: 0.76rem;
 }
 
@@ -1070,11 +1070,11 @@ function handleSourceAudioStop(clipId: string) {
   width: fit-content;
   color: var(--atlas-text);
   text-decoration: none;
-  border-bottom: 1px solid rgba(239, 228, 208, 0.22);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 .card-link.ghost {
-  color: rgba(239, 228, 208, 0.66);
+  color: rgba(255, 255, 255, 0.66);
 }
 
 .audio-player {
@@ -1092,7 +1092,7 @@ function handleSourceAudioStop(clipId: string) {
   display: grid;
   gap: 0.18rem;
   padding-top: 0.45rem;
-  border-top: 1px solid rgba(239, 228, 208, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .song-research dt {
@@ -1111,7 +1111,7 @@ function handleSourceAudioStop(clipId: string) {
 .archive-note {
   padding: 0.65rem 0.75rem;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px dashed rgba(239, 228, 208, 0.12);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
 }
 
 .empty-state {
@@ -1129,7 +1129,7 @@ function handleSourceAudioStop(clipId: string) {
 .bibliography-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(6, 10, 16, 0.72);
+  background: rgba(0, 0, 0, 0.72);
 }
 
 .bibliography-card {
@@ -1142,7 +1142,7 @@ function handleSourceAudioStop(clipId: string) {
   padding: 1rem;
   overflow: auto;
   background: rgba(11, 16, 23, 0.96);
-  border: 1px solid rgba(239, 228, 208, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
 }
 
@@ -1154,7 +1154,7 @@ function handleSourceAudioStop(clipId: string) {
 }
 
 .bibliography-close {
-  border: 1px solid rgba(239, 228, 208, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 @media (max-width: 980px) {

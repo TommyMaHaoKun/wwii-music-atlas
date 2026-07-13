@@ -110,8 +110,8 @@ function clipNote(clip: AudioClip) {
 
 .route-sidebar,
 .source-group {
-  background: rgba(10, 15, 21, 0.72);
-  border: 1px solid rgba(239, 228, 208, 0.1);
+  background: rgba(28, 28, 30, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(16px);
 }
 
@@ -133,7 +133,7 @@ function clipNote(clip: AudioClip) {
 h1,
 h2 {
   margin: 0;
-  font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   line-height: 1;
 }
 
@@ -175,18 +175,18 @@ p {
   color: inherit;
   text-decoration: none;
   background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(239, 228, 208, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .record-card:hover {
-  border-color: rgba(201, 143, 88, 0.36);
-  background: rgba(201, 143, 88, 0.08);
+  border-color: rgba(41, 151, 255, 0.36);
+  background: rgba(41, 151, 255, 0.08);
 }
 
 .record-card span {
   width: fit-content;
   padding: 0.18rem 0.45rem;
-  background: rgba(201, 143, 88, 0.14);
+  background: rgba(41, 151, 255, 0.14);
   color: var(--atlas-text);
   font-size: 0.7rem;
   text-transform: uppercase;
@@ -197,7 +197,7 @@ p {
 }
 
 .record-card small {
-  color: rgba(239, 228, 208, 0.58);
+  color: rgba(255, 255, 255, 0.58);
 }
 
 .record-card p {

@@ -246,8 +246,8 @@ function handleSongError(song: RelatedSong) {
 .route-sidebar,
 .country-surface,
 .sources-cta {
-  background: rgba(10, 15, 21, 0.72);
-  border: 1px solid rgba(239, 228, 208, 0.1);
+  background: rgba(28, 28, 30, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(16px);
 }
 
@@ -269,7 +269,7 @@ function handleSongError(song: RelatedSong) {
 h1,
 h2 {
   margin: 0;
-  font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   line-height: 1;
 }
 
@@ -283,7 +283,7 @@ h2 {
 
 h3 {
   margin: 0;
-  color: rgba(239, 228, 208, 0.6);
+  color: rgba(255, 255, 255, 0.6);
   font-size: 0.78rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -292,7 +292,7 @@ h3 {
 h4 {
   margin: 0;
   color: var(--atlas-text);
-  font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-size: 1.25rem;
   line-height: 1.1;
 }
@@ -310,7 +310,7 @@ p {
 
 .country-picker button,
 .sources-cta button {
-  border: 1px solid rgba(239, 228, 208, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.035);
   color: var(--atlas-text);
   cursor: pointer;
@@ -325,8 +325,8 @@ p {
 }
 
 .country-picker button.active {
-  background: rgba(201, 143, 88, 0.14);
-  border-color: rgba(201, 143, 88, 0.38);
+  background: rgba(41, 151, 255, 0.14);
+  border-color: rgba(41, 151, 255, 0.38);
 }
 
 .country-picker span {
@@ -342,7 +342,7 @@ p {
 }
 
 .year-control span {
-  font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-size: 2rem;
 }
 
@@ -365,7 +365,7 @@ p {
   display: grid;
   gap: 0.65rem;
   padding-top: 0.95rem;
-  border-top: 1px solid rgba(239, 228, 208, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .section-heading,
@@ -383,7 +383,7 @@ p {
 
 .section-heading span,
 .song-heading span {
-  color: rgba(239, 228, 208, 0.62);
+  color: rgba(255, 255, 255, 0.62);
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -395,7 +395,7 @@ p {
 
 .song-heading span {
   padding-right: 0.5rem;
-  border-right: 1px solid rgba(239, 228, 208, 0.12);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .song-heading span:last-child {
@@ -415,7 +415,7 @@ p {
   display: grid;
   gap: 0.55rem;
   padding-top: 0.85rem;
-  border-top: 1px solid rgba(239, 228, 208, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .phase-song:first-child {
@@ -426,7 +426,7 @@ p {
 .song-performer,
 .rights-copy,
 .player-error {
-  color: rgba(239, 228, 208, 0.58);
+  color: rgba(255, 255, 255, 0.58);
   font-size: 0.82rem;
 }
 
@@ -442,7 +442,7 @@ p {
 }
 
 .song-research dt {
-  color: rgba(239, 228, 208, 0.52);
+  color: rgba(255, 255, 255, 0.52);
   font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -481,7 +481,7 @@ p {
   display: grid;
   gap: 0.35rem;
   padding-top: 0.85rem;
-  border-top: 1px solid rgba(239, 228, 208, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .country-artist-list {
@@ -496,7 +496,7 @@ p {
   align-items: start;
   padding: 0.6rem;
   background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(239, 228, 208, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .country-artist-list img {

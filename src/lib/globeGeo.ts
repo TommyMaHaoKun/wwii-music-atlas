@@ -70,7 +70,7 @@ function clampChannel(value: number) {
 
 function drawGraticule(context: CanvasRenderingContext2D, width: number, height: number) {
   context.save()
-  context.strokeStyle = 'rgba(241, 221, 181, 0.065)'
+  context.strokeStyle = 'rgba(200, 216, 240, 0.06)'
   context.lineWidth = 1
 
   for (let lng = -180; lng <= 180; lng += 15) {
@@ -89,7 +89,7 @@ function drawGraticule(context: CanvasRenderingContext2D, width: number, height:
     context.stroke()
   }
 
-  context.strokeStyle = 'rgba(241, 221, 181, 0.12)'
+  context.strokeStyle = 'rgba(200, 216, 240, 0.11)'
   context.lineWidth = 1.4
   context.beginPath()
   context.moveTo(0, height / 2)
@@ -168,7 +168,7 @@ function drawLandRelief(context: CanvasRenderingContext2D, geometry: FeatureGeom
   context.clip()
 
   context.globalCompositeOperation = 'overlay'
-  context.strokeStyle = 'rgba(255, 238, 194, 0.06)'
+  context.strokeStyle = 'rgba(220, 235, 255, 0.06)'
   context.lineWidth = 1
 
   for (let row = 0; row < 36; row += 1) {
@@ -185,7 +185,7 @@ function drawLandRelief(context: CanvasRenderingContext2D, geometry: FeatureGeom
     context.stroke()
   }
 
-  context.fillStyle = 'rgba(88, 61, 34, 0.08)'
+  context.fillStyle = 'rgba(34, 48, 68, 0.08)'
   for (let index = 0; index < 38; index += 1) {
     const x = pseudoNoise(index * 17.3, width) * width
     const y = pseudoNoise(index * 29.7, height) * height
@@ -247,9 +247,9 @@ export function createEarthTexture() {
   drawGraticule(context, width, height)
 
   const land = context.createLinearGradient(0, 0, width, height)
-  land.addColorStop(0, 'rgba(240, 226, 190, 0.52)')
-  land.addColorStop(0.48, 'rgba(196, 172, 126, 0.39)')
-  land.addColorStop(1, 'rgba(122, 101, 70, 0.34)')
+  land.addColorStop(0, 'rgba(198, 214, 232, 0.5)')
+  land.addColorStop(0.48, 'rgba(138, 160, 186, 0.38)')
+  land.addColorStop(1, 'rgba(78, 98, 124, 0.34)')
 
   for (const item of worldFeatures) {
     if (item.properties?.name === 'Antarctica') {
@@ -265,31 +265,31 @@ export function createEarthTexture() {
     drawLandRelief(context, item.geometry, width, height)
 
     context.globalCompositeOperation = 'screen'
-    context.strokeStyle = 'rgba(255, 229, 171, 0.16)'
+    context.strokeStyle = 'rgba(180, 208, 255, 0.16)'
     context.lineWidth = 5
     context.stroke()
 
     context.globalCompositeOperation = 'source-over'
-    context.strokeStyle = 'rgba(255, 242, 214, 0.32)'
+    context.strokeStyle = 'rgba(224, 236, 255, 0.32)'
     context.lineWidth = 1.2
     context.stroke()
 
-    context.strokeStyle = 'rgba(35, 24, 16, 0.32)'
+    context.strokeStyle = 'rgba(14, 20, 30, 0.34)'
     context.lineWidth = 2.4
     context.stroke()
   }
 
   context.globalCompositeOperation = 'screen'
-  drawFixedGlow(context, width, height, -75, 40, 230, 'rgba(219, 168, 82, 0.13)')
-  drawFixedGlow(context, width, height, 15, 50, 260, 'rgba(238, 201, 145, 0.16)')
-  drawFixedGlow(context, width, height, 116, 33, 230, 'rgba(222, 118, 84, 0.14)')
+  drawFixedGlow(context, width, height, -75, 40, 230, 'rgba(90, 150, 235, 0.14)')
+  drawFixedGlow(context, width, height, 15, 50, 260, 'rgba(120, 175, 255, 0.16)')
+  drawFixedGlow(context, width, height, 116, 33, 230, 'rgba(70, 130, 220, 0.15)')
   drawFixedGlow(context, width, height, 139, 36, 170, 'rgba(130, 181, 218, 0.14)')
   context.globalCompositeOperation = 'source-over'
 
   drawDeterministicGrain(context, width, height)
 
   const vignette = context.createRadialGradient(width / 2, height / 2, height * 0.12, width / 2, height / 2, width * 0.72)
-  vignette.addColorStop(0, 'rgba(255, 249, 230, 0.06)')
+  vignette.addColorStop(0, 'rgba(235, 244, 255, 0.06)')
   vignette.addColorStop(0.68, 'rgba(255, 255, 255, 0)')
   vignette.addColorStop(1, 'rgba(0, 0, 0, 0.34)')
   context.fillStyle = vignette

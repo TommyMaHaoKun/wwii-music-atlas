@@ -97,6 +97,48 @@ const artistPinSrc = publicAssetPath('/images/generated/ww2-artist-pin.png')
 
 let globe: any = null
 let resizeObserver: ResizeObserver | null = null
+let detachWheelGuard: (() => void) | null = null
+
+// Reused objects for pointer-over-globe hit testing (wheel scroll vs. zoom).
+const GLOBE_RADIUS = 100
+const wheelRaycaster = new THREE.Raycaster()
+const wheelPointer = new THREE.Vector2()
+const wheelSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), GLOBE_RADIUS)
+const wheelHit = new THREE.Vector3()
+
+function isPointerOverGlobe(clientX: number, clientY: number) {
+  if (!container.value || !globe) {
+    return false
+  }
+
+  const camera = typeof globe.camera === 'function' ? globe.camera() : null
+  if (!camera) {
+    return false
+  }
+
+  const rect = container.value.getBoundingClientRect()
+  wheelPointer.x = ((clientX - rect.left) / rect.width) * 2 - 1
+  wheelPointer.y = -((clientY - rect.top) / rect.height) * 2 + 1
+  wheelRaycaster.setFromCamera(wheelPointer, camera)
+  return wheelRaycaster.ray.intersectSphere(wheelSphere, wheelHit) !== null
+}
+
+// Only let the globe's OrbitControls zoom when the cursor is actually over the
+// sphere. This capture-phase handler runs before OrbitControls' own wheel
+// handler; when zoom is disabled OrbitControls returns before preventDefault,
+// so the wheel scrolls the page instead.
+function handleWheelGuard(event: WheelEvent) {
+  if (!globe || typeof globe.controls !== 'function') {
+    return
+  }
+
+  const controls = globe.controls()
+  if (!controls) {
+    return
+  }
+
+  controls.enableZoom = isPointerOverGlobe(event.clientX, event.clientY)
+}
 
 const visibleEvents = computed(() =>
   props.enabledLayers.includes('events')
@@ -327,21 +369,21 @@ function addAtmosphereObjects() {
   }
 
   const scene = globe.scene()
-  scene.add(createStarField(520, 2500, 1.7, 0.34, '#f3d9ac'))
+  scene.add(createStarField(520, 2500, 1.7, 0.34, '#f5f5f7'))
   scene.add(createStarField(340, 3600, 2.5, 0.22, '#9ec7d8'))
-  scene.add(createStarField(150, 4600, 3.1, 0.12, '#f6ead5'))
-  scene.add(new THREE.AmbientLight('#cfbda1', 0.64))
-  scene.add(new THREE.HemisphereLight('#f7d3a1', '#07121b', 0.46))
+  scene.add(createStarField(150, 4600, 3.1, 0.12, '#f5f5f7'))
+  scene.add(new THREE.AmbientLight('#b8c4d4', 0.66))
+  scene.add(new THREE.HemisphereLight('#cfe0f2', '#05070a', 0.48))
 
-  const keyLight = new THREE.DirectionalLight('#ffd39a', 1.62)
+  const keyLight = new THREE.DirectionalLight('#dce8f7', 1.58)
   keyLight.position.set(-300, 190, 250)
   scene.add(keyLight)
 
-  const fillLight = new THREE.DirectionalLight('#7eaec5', 0.72)
+  const fillLight = new THREE.DirectionalLight('#6f97c5', 0.74)
   fillLight.position.set(240, -120, -210)
   scene.add(fillLight)
 
-  const rimLight = new THREE.DirectionalLight('#f6a85f', 0.9)
+  const rimLight = new THREE.DirectionalLight('#3f7fd0', 0.95)
   rimLight.position.set(120, 90, -300)
   scene.add(rimLight)
 
@@ -349,10 +391,10 @@ function addAtmosphereObjects() {
     new THREE.Mesh(
       new THREE.SphereGeometry(103.5, 64, 64),
       new THREE.MeshBasicMaterial({
-        color: '#d9a56b',
+        color: '#3a6fc0',
         side: THREE.BackSide,
         transparent: true,
-        opacity: 0.075,
+        opacity: 0.08,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
       }),
@@ -363,10 +405,10 @@ function addAtmosphereObjects() {
     new THREE.Mesh(
       new THREE.SphereGeometry(107.8, 64, 64),
       new THREE.MeshBasicMaterial({
-        color: '#6fa7bd',
+        color: '#5f8fc8',
         side: THREE.BackSide,
         transparent: true,
-        opacity: 0.045,
+        opacity: 0.05,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
       }),
@@ -389,11 +431,11 @@ function tuneGlobeMaterial() {
   }
 
   if ('specular' in material) {
-    material.specular = new THREE.Color('#766247')
+    material.specular = new THREE.Color('#2a3442')
   }
 
   if ('color' in material) {
-    material.color = new THREE.Color('#ead8ad')
+    material.color = new THREE.Color('#c7d2de')
   }
 
   if ('bumpScale' in material) {
@@ -408,7 +450,7 @@ function createMarkerElement(pin: GlobePin) {
   const title = escapeHtml(pin.title)
   const subtitle = escapeHtml(pin.subtitle)
   const categoryLabel = escapeHtml(pin.categoryLabel ?? '')
-  const glow = pin.glow ?? 'rgba(201, 143, 88, 0.22)'
+  const glow = pin.glow ?? 'rgba(41, 151, 255, 0.22)'
   const role = escapeHtml(pin.role ?? '')
   const works = pin.works?.slice(0, 2) ?? []
 
@@ -635,7 +677,7 @@ function syncGlobe() {
     .polygonCapColor((feature: Feature) => {
       const country = getCountryForFeature(feature)
       if (!country) {
-        return 'rgba(240, 231, 216, 0.04)'
+        return 'rgba(255, 255, 255, 0.04)'
       }
 
       const activeColor = getPhaseColor(country)
@@ -644,7 +686,7 @@ function syncGlobe() {
     })
     .polygonSideColor((feature: Feature) => {
       const country = getCountryForFeature(feature)
-      return country ? withAlpha(getPhaseColor(country), 0.16) : 'rgba(240, 231, 216, 0.02)'
+      return country ? withAlpha(getPhaseColor(country), 0.16) : 'rgba(255, 255, 255, 0.02)'
     })
     .polygonStrokeColor((feature: Feature) => {
       const country = getCountryForFeature(feature)
@@ -718,8 +760,8 @@ onMounted(() => {
   globe.bumpImageUrl(createEarthBumpTexture())
   globe.backgroundColor('rgba(0,0,0,0)')
   globe.showAtmosphere(true)
-  globe.atmosphereAltitude(0.24)
-  globe.atmosphereColor('#e1a768')
+  globe.atmosphereAltitude(0.26)
+  globe.atmosphereColor('#3d8bff')
   tuneGlobeMaterial()
   globe.onPolygonClick((feature: Feature) => {
     const country = getCountryForFeature(feature)
@@ -755,6 +797,10 @@ onMounted(() => {
 
   resizeObserver = new ResizeObserver(updateSize)
   resizeObserver.observe(container.value)
+
+  const wheelTarget = container.value
+  wheelTarget.addEventListener('wheel', handleWheelGuard, { capture: true, passive: true })
+  detachWheelGuard = () => wheelTarget.removeEventListener('wheel', handleWheelGuard, { capture: true } as EventListenerOptions)
 })
 
 watch(
@@ -785,6 +831,11 @@ watch(
 onBeforeUnmount(() => {
   if (resizeObserver) {
     resizeObserver.disconnect()
+  }
+
+  if (detachWheelGuard) {
+    detachWheelGuard()
+    detachWheelGuard = null
   }
 })
 </script>
@@ -838,10 +889,10 @@ onBeforeUnmount(() => {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 46%, transparent 18%, rgba(195, 122, 57, 0.08) 52%, rgba(6, 10, 16, 0.3) 78%, rgba(4, 7, 11, 0.62) 100%),
-    linear-gradient(90deg, rgba(255, 236, 199, 0.035) 1px, transparent 1px),
-    linear-gradient(rgba(255, 236, 199, 0.026) 1px, transparent 1px),
-    linear-gradient(115deg, transparent 0 46%, rgba(255, 240, 205, 0.04) 49%, transparent 53%);
+    radial-gradient(circle at 50% 46%, transparent 18%, rgba(41, 151, 255, 0.08) 52%, rgba(0, 0, 0, 0.3) 78%, rgba(0, 0, 0, 0.62) 100%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.026) 1px, transparent 1px),
+    linear-gradient(115deg, transparent 0 46%, rgba(255, 255, 255, 0.04) 49%, transparent 53%);
   background-size: auto, 80px 80px, 80px 80px, 100% 100%;
   mask-image: radial-gradient(circle at center, black 30%, transparent 94%);
 }
@@ -853,9 +904,9 @@ onBeforeUnmount(() => {
   z-index: 2;
   max-width: min(24rem, 34vw);
   padding: 0.8rem 0.95rem;
-  background: rgba(10, 15, 21, 0.7);
-  border: 1px solid rgba(239, 228, 208, 0.08);
-  color: rgba(239, 228, 208, 0.78);
+  background: rgba(28, 28, 30, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.78);
   font-size: 0.78rem;
   line-height: 1.45;
   backdrop-filter: blur(16px);
@@ -870,9 +921,9 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
   gap: 0.9rem;
   padding: 0.7rem 0.9rem;
-  background: rgba(10, 15, 21, 0.66);
+  background: rgba(28, 28, 30, 0.66);
   border: 1px solid var(--atlas-line);
-  color: rgba(239, 228, 208, 0.78);
+  color: rgba(255, 255, 255, 0.78);
   font-size: 0.78rem;
   backdrop-filter: blur(16px);
 }
@@ -890,7 +941,7 @@ onBeforeUnmount(() => {
 }
 
 .dot-country {
-  background: rgba(201, 143, 88, 0.75);
+  background: rgba(41, 151, 255, 0.75);
 }
 
 .dot-artist {
@@ -907,7 +958,7 @@ onBeforeUnmount(() => {
   bottom: 1rem;
   max-width: 20rem;
   padding: 1rem 1.1rem;
-  background: rgba(10, 15, 21, 0.85);
+  background: rgba(28, 28, 30, 0.85);
   border: 1px solid var(--atlas-line);
   color: var(--atlas-text);
 }
@@ -925,18 +976,18 @@ onBeforeUnmount(() => {
 
 :global(.globe-tooltip__title) {
   font-weight: 700;
-  color: #f6ecdd;
+  color: #f5f5f7;
 }
 
 :global(.globe-tooltip__meta) {
   margin-top: 0.2rem;
-  color: rgba(246, 236, 221, 0.62);
+  color: rgba(255, 255, 255, 0.62);
   font-size: 0.74rem;
 }
 
 :global(.globe-tooltip__copy) {
   margin-top: 0.35rem;
-  color: #ecd9be;
+  color: #f5f5f7;
 }
 
 :global(.influence-label) {
@@ -947,11 +998,11 @@ onBeforeUnmount(() => {
   min-width: 9.2rem;
   max-width: 15rem;
   padding: 0.46rem 0.58rem 0.5rem;
-  border: 1px solid color-mix(in srgb, var(--target-color) 48%, rgba(255, 239, 205, 0.18));
+  border: 1px solid color-mix(in srgb, var(--target-color) 48%, rgba(255, 255, 255, 0.18));
   background:
     linear-gradient(90deg, color-mix(in srgb, var(--source-color) 22%, transparent), transparent 42%),
-    rgba(8, 13, 18, 0.82);
-  color: #f8ecd8;
+    rgba(20, 20, 22, 0.82);
+  color: #f5f5f7;
   text-align: left;
   pointer-events: auto;
   cursor: pointer;
@@ -976,7 +1027,7 @@ onBeforeUnmount(() => {
 :global(.influence-label:hover),
 :global(.influence-label:focus-visible),
 :global(.influence-label--active) {
-  border-color: color-mix(in srgb, var(--target-color) 74%, rgba(255, 247, 225, 0.42));
+  border-color: color-mix(in srgb, var(--target-color) 74%, rgba(255, 255, 255, 0.42));
   transform: translate(-50%, -50%) scale(1.03);
   box-shadow:
     0 16px 42px rgba(0, 0, 0, 0.4),
@@ -988,7 +1039,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 0.34rem;
   min-width: 0;
-  color: #fff3d9;
+  color: #f5f5f7;
   font-size: 0.68rem;
   font-weight: 700;
   line-height: 1.25;
@@ -1008,7 +1059,7 @@ onBeforeUnmount(() => {
   display: -webkit-box;
   max-height: 0;
   overflow: hidden;
-  color: rgba(248, 236, 216, 0.72);
+  color: rgba(255, 255, 255, 0.72);
   font-size: 0.62rem;
   line-height: 1.35;
   opacity: 0;
@@ -1078,7 +1129,7 @@ onBeforeUnmount(() => {
 :global(.globe-pin__stem) {
   width: 2px;
   height: 12px;
-  background: rgba(255, 240, 219, 0.74);
+  background: rgba(255, 255, 255, 0.74);
 }
 
 :global(.globe-pin__head) {
@@ -1121,7 +1172,7 @@ onBeforeUnmount(() => {
 
 :global(.globe-pin--event .globe-pin__stem) {
   height: 8px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--pin-color) 74%, #fff), rgba(255, 240, 219, 0.2));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--pin-color) 74%, #fff), rgba(255, 255, 255, 0.2));
 }
 
 :global(.event-badge) {
@@ -1130,7 +1181,7 @@ onBeforeUnmount(() => {
   place-items: center;
   width: 2.05rem;
   height: 3.15rem;
-  color: #fff4db;
+  color: #f5f5f7;
 }
 
 :global(.event-badge[data-importance='2']) {
@@ -1269,7 +1320,7 @@ onBeforeUnmount(() => {
   left: 0.49rem;
   width: 2px;
   height: 0.34rem;
-  background: rgba(8, 13, 18, 0.92);
+  background: rgba(20, 20, 22, 0.92);
 }
 
 :global(.event-badge__glyph--occupation i:nth-child(3)) {
@@ -1278,7 +1329,7 @@ onBeforeUnmount(() => {
   width: 0.14rem;
   height: 0.14rem;
   border-radius: 999px;
-  background: rgba(8, 13, 18, 0.92);
+  background: rgba(20, 20, 22, 0.92);
 }
 
 :global(.event-badge__glyph--liberation i:nth-child(1)) {
@@ -1289,7 +1340,7 @@ onBeforeUnmount(() => {
 :global(.event-badge__glyph--liberation i:nth-child(2)) {
   inset: 0.37rem;
   border-radius: 999px;
-  background: rgba(8, 13, 18, 0.72);
+  background: rgba(20, 20, 22, 0.72);
 }
 
 :global(.event-badge__glyph--reconstruction i:nth-child(1)) {
@@ -1322,8 +1373,8 @@ onBeforeUnmount(() => {
 :global(.event-badge__year) {
   padding: 0.12rem 0.34rem;
   border: 1px solid color-mix(in srgb, var(--pin-color) 48%, transparent);
-  background: rgba(8, 13, 18, 0.76);
-  color: #fff1d2;
+  background: rgba(20, 20, 22, 0.76);
+  color: #f5f5f7;
   font-size: 0.62rem;
   line-height: 1;
   letter-spacing: 0.08em;
@@ -1331,8 +1382,8 @@ onBeforeUnmount(() => {
 
 :global(.globe-pin--event.globe-pin--selected .event-badge__year) {
   border-color: color-mix(in srgb, var(--pin-color) 70%, #fff);
-  background: color-mix(in srgb, var(--pin-color) 22%, rgba(8, 13, 18, 0.9));
-  color: #fff7e4;
+  background: color-mix(in srgb, var(--pin-color) 22%, rgba(20, 20, 22, 0.9));
+  color: #f5f5f7;
 }
 
 :global(.globe-pin__label) {
@@ -1341,9 +1392,9 @@ onBeforeUnmount(() => {
   margin-top: 0.25rem;
   padding: 0.28rem 0.42rem;
   max-width: 9rem;
-  background: rgba(10, 15, 21, 0.82);
-  border: 1px solid rgba(239, 228, 208, 0.1);
-  color: #f3e7d4;
+  background: rgba(28, 28, 30, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f5f5f7;
   text-align: center;
   opacity: 0;
   transform: translateY(4px);
@@ -1383,7 +1434,7 @@ onBeforeUnmount(() => {
 }
 
 :global(.globe-pin__label small) {
-  color: rgba(243, 231, 212, 0.68);
+  color: rgba(255, 255, 255, 0.68);
   font-size: 0.65rem;
   line-height: 1.25;
 }
@@ -1402,7 +1453,7 @@ onBeforeUnmount(() => {
   width: 4rem;
   aspect-ratio: 3 / 4;
   object-fit: cover;
-  border: 1px solid rgba(239, 228, 208, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 :global(.artist-card-copy) {
@@ -1419,7 +1470,7 @@ onBeforeUnmount(() => {
 }
 
 :global(.artist-card-copy em) {
-  color: rgba(243, 231, 212, 0.74);
+  color: rgba(255, 255, 255, 0.74);
   font-size: 0.64rem;
   font-style: normal;
   line-height: 1.3;
@@ -1432,7 +1483,7 @@ onBeforeUnmount(() => {
 }
 
 :global(.artist-card-works b) {
-  color: #f4d39f;
+  color: #7cc0ff;
   font-size: 0.65rem;
   font-weight: 700;
   overflow-wrap: anywhere;
@@ -1440,7 +1491,7 @@ onBeforeUnmount(() => {
 
 :global(.artist-card-works i) {
   margin-left: 0.35rem;
-  color: rgba(243, 231, 212, 0.54);
+  color: rgba(255, 255, 255, 0.54);
   font-size: 0.6rem;
   font-style: normal;
 }

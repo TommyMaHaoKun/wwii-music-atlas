@@ -20,7 +20,9 @@ const currentIndex = ref(0)
 const volume = ref(0.34)
 const hasInteracted = ref(false)
 const isPlaying = ref(false)
-const userPaused = ref(false)
+// Background music is opt-in: it never starts on its own, only when the
+// listener presses play.
+const userPaused = ref(true)
 const playbackBlocked = ref(false)
 const sourceAudioActive = ref(false)
 const notice = ref('')
@@ -42,16 +44,12 @@ const statusLabel = computed(() => {
     return props.language === 'zh' ? '背景轮播中' : 'Rolling soundtrack'
   }
 
-  if (!hasInteracted.value) {
-    return props.language === 'zh' ? '首次交互后启动' : 'Starts after first interaction'
-  }
-
   if (playbackBlocked.value) {
     return props.language === 'zh' ? '点击播放即可继续' : 'Press play to continue'
   }
 
   if (userPaused.value) {
-    return props.language === 'zh' ? '已手动暂停' : 'Paused by listener'
+    return props.language === 'zh' ? '点击播放即可开始' : 'Press play to start'
   }
 
   return props.language === 'zh' ? '待命' : 'Ready'
@@ -90,18 +88,6 @@ watch(
     }
   },
 )
-
-function setFirstInteraction() {
-  if (hasInteracted.value) {
-    return
-  }
-
-  hasInteracted.value = true
-
-  if (!userPaused.value && !sourceAudioActive.value) {
-    void attemptPlay()
-  }
-}
 
 function emitPlaybackState() {
   emit('state-change', {
@@ -239,8 +225,6 @@ function handleSourceAudioState(event: Event) {
 }
 
 onMounted(() => {
-  window.addEventListener('pointerdown', setFirstInteraction, { once: true })
-  window.addEventListener('keydown', setFirstInteraction, { once: true })
   window.addEventListener(SOURCE_AUDIO_STATE_EVENT, handleSourceAudioState as EventListener)
 
   if (audioRef.value) {
@@ -249,8 +233,6 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('pointerdown', setFirstInteraction)
-  window.removeEventListener('keydown', setFirstInteraction)
   window.removeEventListener(SOURCE_AUDIO_STATE_EVENT, handleSourceAudioState as EventListener)
 })
 </script>
@@ -334,21 +316,24 @@ onBeforeUnmount(() => {
   display: grid;
   gap: 0.85rem;
   width: min(26rem, calc(100vw - 2rem));
-  padding: 0.95rem 1rem;
+  padding: 1.2rem 1.2rem;
   background:
-    linear-gradient(180deg, rgba(9, 14, 20, 0.94), rgba(9, 14, 20, 0.8)),
-    radial-gradient(circle at top right, rgba(201, 143, 88, 0.12), transparent 42%);
-  border: 1px solid rgba(239, 228, 208, 0.12);
+    linear-gradient(180deg, rgba(28, 28, 30, 0.94), rgba(28, 28, 30, 0.8)),
+    radial-gradient(circle at top right, rgba(41, 151, 255, 0.12), transparent 42%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--atlas-radius);
   box-shadow: var(--atlas-shadow);
-  backdrop-filter: blur(18px);
+  backdrop-filter: saturate(180%) blur(28px);
+  -webkit-backdrop-filter: saturate(180%) blur(28px);
 }
 
 .eyebrow {
   margin: 0;
   color: var(--atlas-accent);
   font-size: 0.72rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
 }
 
 .player-copy {
@@ -365,18 +350,19 @@ onBeforeUnmount(() => {
 
 .player-title-row h2 {
   margin: 0;
-  font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-size: 1.22rem;
   line-height: 1.1;
 }
 
 .status-pill {
   flex: none;
-  padding: 0.2rem 0.48rem;
-  border: 1px solid rgba(239, 228, 208, 0.12);
-  color: rgba(239, 228, 208, 0.78);
+  padding: 0.22rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 980px;
+  color: rgba(255, 255, 255, 0.78);
   font-size: 0.72rem;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .track-meta,
@@ -401,7 +387,7 @@ onBeforeUnmount(() => {
 }
 
 .player-notice {
-  color: rgba(239, 228, 208, 0.82);
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .player-controls {
@@ -412,16 +398,27 @@ onBeforeUnmount(() => {
 }
 
 .player-button {
-  padding: 0.66rem 0.9rem;
-  border: 1px solid rgba(239, 228, 208, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+  padding: 0.55rem 1.15rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--atlas-text);
+  border-radius: 980px;
   cursor: pointer;
+  transition: background 200ms ease, border-color 200ms ease;
+}
+
+.player-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .player-button.primary {
-  border-color: rgba(201, 143, 88, 0.34);
-  background: rgba(201, 143, 88, 0.14);
+  border-color: transparent;
+  background: var(--atlas-accent);
+  color: #fff;
+}
+
+.player-button.primary:hover:not(:disabled) {
+  background: #4aa3ff;
 }
 
 .player-button:disabled {
@@ -434,7 +431,7 @@ onBeforeUnmount(() => {
   gap: 0.2rem;
   margin-left: auto;
   min-width: 7.5rem;
-  color: rgba(239, 228, 208, 0.68);
+  color: rgba(255, 255, 255, 0.68);
   font-size: 0.8rem;
 }
 
@@ -446,11 +443,11 @@ onBeforeUnmount(() => {
   width: fit-content;
   color: var(--atlas-text);
   text-decoration: none;
-  border-bottom: 1px solid rgba(239, 228, 208, 0.22);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 .card-link.ghost {
-  color: rgba(239, 228, 208, 0.68);
+  color: rgba(255, 255, 255, 0.68);
 }
 
 @media (max-width: 760px) {

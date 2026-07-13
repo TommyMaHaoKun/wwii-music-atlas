@@ -343,8 +343,8 @@ function handleSampleError(sample: TrainingSample) {
   z-index: 1;
   max-width: 82rem;
   margin: 0 auto 1rem;
-  background: rgba(10, 15, 21, 0.72);
-  border: 1px solid rgba(239, 228, 208, 0.1);
+  background: rgba(28, 28, 30, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(16px);
 }
 
@@ -358,7 +358,7 @@ function handleSampleError(sample: TrainingSample) {
   background:
     linear-gradient(120deg, rgba(8, 12, 18, 0.94), rgba(8, 12, 18, 0.7) 56%, rgba(8, 12, 18, 0.92)),
     var(--training-intro-figure) right 2rem center / min(34rem, 48%) auto no-repeat,
-    rgba(10, 15, 21, 0.78);
+    rgba(28, 28, 30, 0.78);
   animation: surface-in 420ms ease both;
 }
 
@@ -382,7 +382,7 @@ h2,
 h3 {
   margin: 0;
   color: var(--atlas-text);
-  font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   line-height: 1;
 }
 
@@ -408,7 +408,7 @@ p {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: stretch;
-  border: 1px solid rgba(239, 228, 208, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.035);
 }
 
@@ -417,7 +417,7 @@ p {
   gap: 0.35rem;
   min-width: 0;
   padding: 0.85rem;
-  border-left: 1px solid rgba(239, 228, 208, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .metric-rack article:first-child {
@@ -426,7 +426,7 @@ p {
 
 .metric-rack strong {
   color: var(--atlas-text);
-  font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-size: 1.9rem;
   line-height: 1;
 }
@@ -447,7 +447,7 @@ p {
 .sample-heading small,
 .sample-tags span,
 .sample-links span {
-  color: rgba(239, 228, 208, 0.6);
+  color: rgba(255, 255, 255, 0.6);
   line-height: 1.35;
 }
 
@@ -491,7 +491,7 @@ p {
   align-items: center;
   min-height: 3.4rem;
   padding: 0.65rem;
-  border: 1px solid rgba(239, 228, 208, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.035);
   color: var(--atlas-text);
   text-align: left;
@@ -502,8 +502,8 @@ p {
 .step-rail button:hover,
 .step-rail button:focus-visible,
 .step-rail button.active {
-  background: rgba(201, 143, 88, 0.14);
-  border-color: rgba(201, 143, 88, 0.38);
+  background: rgba(41, 151, 255, 0.14);
+  border-color: rgba(41, 151, 255, 0.38);
   transform: translateX(0.12rem);
 }
 
@@ -511,7 +511,7 @@ p {
 .step-stats strong,
 .profile-grid span {
   color: var(--atlas-accent);
-  font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
 .step-rail strong {
@@ -528,8 +528,8 @@ p {
   padding: 1rem;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02)),
-    rgba(5, 8, 12, 0.32);
-  border: 1px solid rgba(239, 228, 208, 0.1);
+    rgba(0, 0, 0, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .output-title {
@@ -544,7 +544,7 @@ code {
   overflow: auto;
   color: #f6d19c;
   background: rgba(0, 0, 0, 0.28);
-  border: 1px solid rgba(239, 228, 208, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   white-space: nowrap;
 }
 
@@ -558,7 +558,7 @@ code {
   min-width: 0;
   padding: 0.8rem;
   background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(239, 228, 208, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .artifact-grid span {
@@ -592,11 +592,11 @@ li {
   display: grid;
   gap: 0.2rem;
   padding-top: 0.55rem;
-  border-top: 1px solid rgba(239, 228, 208, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .step-stats small {
-  color: rgba(239, 228, 208, 0.56);
+  color: rgba(255, 255, 255, 0.56);
 }
 
 .model-highlight-grid {
@@ -611,13 +611,13 @@ li {
   min-width: 0;
   padding: 0.85rem;
   background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(239, 228, 208, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .model-highlight-grid span,
 .fine-tune-copy span {
   color: var(--atlas-accent);
-  font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
 .model-highlight-grid span {
@@ -646,8 +646,8 @@ li {
   padding: 0.45rem 0.65rem;
   color: var(--atlas-text);
   text-decoration: none;
-  background: rgba(201, 143, 88, 0.12);
-  border: 1px solid rgba(201, 143, 88, 0.28);
+  background: rgba(41, 151, 255, 0.12);
+  border: 1px solid rgba(41, 151, 255, 0.28);
 }
 
 .fine-tune-timeline {
@@ -663,7 +663,7 @@ li {
   min-width: 0;
   padding: 0.95rem;
   background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(239, 228, 208, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.09);
 }
 
 .fine-tune-copy {
@@ -704,12 +704,12 @@ li {
   min-width: 0;
   padding: 0.85rem;
   background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(239, 228, 208, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   transition: transform 180ms ease, border-color 180ms ease;
 }
 
 .profile-grid article:hover {
-  border-color: rgba(201, 143, 88, 0.34);
+  border-color: rgba(41, 151, 255, 0.34);
   transform: translateY(-0.1rem);
 }
 
@@ -735,14 +735,14 @@ li {
   min-width: 0;
   padding: 0.95rem;
   background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(239, 228, 208, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
 }
 
 .sample-row:hover,
 .sample-row:focus-within {
   background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(201, 143, 88, 0.34);
+  border-color: rgba(41, 151, 255, 0.34);
   transform: translateY(-0.08rem);
 }
 
@@ -763,7 +763,7 @@ li {
   width: fit-content;
   padding: 0.16rem 0.45rem;
   color: var(--atlas-text);
-  background: rgba(201, 143, 88, 0.14);
+  background: rgba(41, 151, 255, 0.14);
   font-size: 0.72rem;
 }
 
@@ -779,7 +779,7 @@ li {
 
 .sample-tags span {
   padding: 0.2rem 0.48rem;
-  border: 1px solid rgba(239, 228, 208, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.035);
 }
 
@@ -807,7 +807,7 @@ li {
   width: fit-content;
   color: var(--atlas-text);
   text-decoration: none;
-  border-bottom: 1px solid rgba(239, 228, 208, 0.24);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.24);
 }
 
 .sample-links span {
@@ -833,7 +833,7 @@ figure img {
   min-height: 16rem;
   object-fit: contain;
   background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(239, 228, 208, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 figcaption {
@@ -870,7 +870,7 @@ figcaption {
     background:
       linear-gradient(180deg, rgba(8, 12, 18, 0.94), rgba(8, 12, 18, 0.76)),
       var(--training-intro-figure) right 1rem bottom 1rem / 22rem auto no-repeat,
-      rgba(10, 15, 21, 0.78);
+      rgba(28, 28, 30, 0.78);
   }
 
   .step-rail {
@@ -906,7 +906,7 @@ figcaption {
   .training-intro {
     background:
       linear-gradient(180deg, rgba(8, 12, 18, 0.95), rgba(8, 12, 18, 0.82)),
-      rgba(10, 15, 21, 0.78);
+      rgba(28, 28, 30, 0.78);
   }
 
   h1 {
@@ -943,7 +943,7 @@ figcaption {
   .metric-rack article,
   .metric-rack article:nth-child(odd) {
     border-left: 0;
-    border-top: 1px solid rgba(239, 228, 208, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .metric-rack article:first-child {

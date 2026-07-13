@@ -12,6 +12,7 @@ const links: Array<{ path: AtlasRoutePath; labelZh: string; labelEn: string }> =
   { path: '/countries', labelZh: '国家风格', labelEn: 'Countries' },
   { path: '/sources', labelZh: '档案资料', labelEn: 'Sources' },
   { path: '/training-data', labelZh: '训练数据', labelEn: 'Training Data' },
+  { path: '/generate', labelZh: '生成音乐', labelEn: 'Generate' },
 ]
 
 const routeQuery = computed(() => ({
@@ -72,14 +73,16 @@ function linkHref(path: AtlasRoutePath) {
   left: 0;
   z-index: 20;
   display: grid;
-  grid-template-columns: minmax(12rem, 1fr) auto minmax(8rem, 1fr);
+  grid-template-columns: minmax(10rem, 1fr) auto minmax(6rem, 1fr);
   gap: 1rem;
   align-items: center;
-  padding: 0.8rem 1.2rem;
+  height: 52px;
+  padding: 0 clamp(1rem, 3vw, 2.2rem);
   color: var(--atlas-text);
-  background: linear-gradient(180deg, rgba(7, 10, 15, 0.82), rgba(7, 10, 15, 0.36));
-  border-bottom: 1px solid rgba(239, 228, 208, 0.08);
-  backdrop-filter: blur(18px);
+  background: rgba(0, 0, 0, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
 }
 
 .brand,
@@ -91,8 +94,9 @@ function linkHref(path: AtlasRoutePath) {
 }
 
 .brand {
-  display: grid;
-  gap: 0.1rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
   justify-self: start;
   min-width: 0;
   max-width: 28rem;
@@ -101,90 +105,76 @@ function linkHref(path: AtlasRoutePath) {
 }
 
 .brand span {
-  color: var(--atlas-accent);
-  font-size: 0.68rem;
-  letter-spacing: 0.24em;
+  display: none;
 }
 
 .brand strong {
-  font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
-  font-size: 1.05rem;
+  font-size: 0.98rem;
   font-weight: 600;
   line-height: 1.2;
-  overflow-wrap: anywhere;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nav-links {
   display: flex;
-  gap: 0.35rem;
-  padding: 0.25rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(239, 228, 208, 0.08);
+  gap: 0.15rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
 }
 
-.nav-links a,
-.nav-actions button {
-  padding: 0.52rem 0.8rem;
-  color: rgba(239, 228, 208, 0.72);
+.nav-links a {
+  padding: 0.4rem 0.85rem;
+  color: rgba(245, 245, 247, 0.72);
+  font-size: 0.82rem;
+  font-weight: 400;
   text-decoration: none;
-  transition: background 180ms ease, color 180ms ease;
+  border-radius: 980px;
+  white-space: nowrap;
+  transition: background 200ms ease, color 200ms ease;
 }
 
-.nav-links a.active,
-.nav-links a:hover,
-.nav-actions button.active,
-.nav-actions button:hover {
-  background: rgba(201, 143, 88, 0.14);
+.nav-links a:hover {
   color: var(--atlas-text);
+}
+
+.nav-links a.active {
+  color: var(--atlas-text);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .nav-actions {
   display: flex;
   justify-self: end;
-  gap: 0.25rem;
-  border: 1px solid rgba(239, 228, 208, 0.08);
-  background: rgba(255, 255, 255, 0.03);
+  gap: 0.15rem;
+  padding: 0.15rem;
+  border-radius: 980px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
 }
 
-@media (max-width: 760px) {
-  .site-nav {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0.6rem;
-    padding: 0.7rem;
-  }
-
-  .brand strong {
-    font-size: 0.95rem;
-    display: -webkit-box;
-    overflow: hidden;
-    line-clamp: 2;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-  }
-
-  .nav-links {
-    grid-column: 1 / -1;
-    justify-self: stretch;
-    overflow-x: auto;
-  }
-
-  .nav-actions {
-    grid-column: 2;
-    grid-row: 1;
-    align-self: start;
-    justify-self: end;
-  }
-
-  .nav-links a {
-    flex: 1;
-    text-align: center;
-    white-space: nowrap;
-  }
+.nav-actions button {
+  padding: 0.28rem 0.7rem;
+  color: rgba(245, 245, 247, 0.72);
+  font-size: 0.78rem;
+  border-radius: 980px;
+  transition: background 200ms ease, color 200ms ease;
 }
 
-@media (min-width: 761px) and (max-width: 1180px) {
+.nav-actions button.active {
+  color: #fff;
+  background: var(--atlas-accent);
+}
+
+@media (max-width: 1180px) {
   .site-nav {
     grid-template-columns: minmax(0, 1fr) auto;
+    height: auto;
+    row-gap: 0.5rem;
+    padding: 0.6rem clamp(0.8rem, 3vw, 1.4rem);
   }
 
   .nav-links {
@@ -192,17 +182,25 @@ function linkHref(path: AtlasRoutePath) {
     grid-row: 2;
     justify-self: stretch;
     overflow-x: auto;
+    padding-bottom: 0.15rem;
   }
 
   .nav-links a {
-    flex: 1;
+    flex: 0 0 auto;
     text-align: center;
-    white-space: nowrap;
   }
 
   .nav-actions {
     grid-column: 2;
     grid-row: 1;
+    align-self: center;
+    justify-self: end;
+  }
+}
+
+@media (max-width: 760px) {
+  .brand strong {
+    font-size: 0.9rem;
   }
 }
 </style>

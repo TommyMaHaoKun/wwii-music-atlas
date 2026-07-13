@@ -144,7 +144,7 @@ function isLayerEnabled(layer: LayerKey) {
 .title {
   margin: 0;
   max-width: 10ch;
-  font-family: Georgia, 'Times New Roman', 'Noto Serif SC', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-size: clamp(2.4rem, 4vw, 4.8rem);
   line-height: 0.92;
 }
@@ -164,7 +164,7 @@ function isLayerEnabled(layer: LayerKey) {
 }
 
 .label {
-  color: rgba(239, 228, 208, 0.62);
+  color: rgba(255, 255, 255, 0.62);
 }
 
 .segmented,
@@ -182,8 +182,8 @@ function isLayerEnabled(layer: LayerKey) {
 .segment,
 .chip,
 .chapter-button {
-  border: 1px solid rgba(239, 228, 208, 0.14);
-  background: rgba(239, 228, 208, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--atlas-text);
   cursor: pointer;
   transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
@@ -207,7 +207,7 @@ function isLayerEnabled(layer: LayerKey) {
 }
 
 .chapter-button small {
-  color: rgba(239, 228, 208, 0.58);
+  color: rgba(255, 255, 255, 0.58);
 }
 
 .country-chip::before {
@@ -226,8 +226,8 @@ function isLayerEnabled(layer: LayerKey) {
 .segment:hover,
 .chip:hover,
 .chapter-button:hover {
-  background: rgba(201, 143, 88, 0.14);
-  border-color: rgba(201, 143, 88, 0.44);
+  background: rgba(41, 151, 255, 0.14);
+  border-color: rgba(41, 151, 255, 0.44);
   transform: translateY(-1px);
 }
 

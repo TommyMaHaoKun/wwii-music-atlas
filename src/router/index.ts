@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import { createRouter, createWebHistory, type LocationQueryRaw, type RouteLocationRaw } from 'vue-router'
 
-export type AtlasRoutePath = '/' | '/events' | '/countries' | '/sources' | '/training-data'
+export type AtlasRoutePath = '/' | '/events' | '/countries' | '/sources' | '/training-data' | '/generate'
 
 export interface RouteTarget {
   path?: AtlasRoutePath
@@ -16,6 +16,7 @@ export const router = createRouter({
     { path: '/countries', name: 'countries', component: () => import('@/views/AtlasCountries.vue') },
     { path: '/sources', name: 'sources', component: () => import('@/views/AtlasSources.vue') },
     { path: '/training-data', name: 'training-data', component: () => import('@/views/TrainingDataShowcase.vue') },
+    { path: '/generate', name: 'generate', component: () => import('@/views/GenerateMusic.vue') },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 })

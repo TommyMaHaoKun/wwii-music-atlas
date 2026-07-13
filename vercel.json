@@ -4,9 +4,10 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/events", "destination": "/index.html" },
+    { "source": "/countries", "destination": "/index.html" },
+    { "source": "/sources", "destination": "/index.html" },
+    { "source": "/training-data", "destination": "/index.html" },
+    { "source": "/generate", "destination": "/index.html" }
   ]
 }

@@ -66,7 +66,7 @@ afterEach(() => {
 })
 
 describe('BackgroundMusicPlayer', () => {
-  it('attempts playback after the first interaction', async () => {
+  it('does not auto-play; starts only when the listener presses play', async () => {
     const wrapper = mount(BackgroundMusicPlayer, {
       props: {
         language: 'en',
@@ -74,7 +74,15 @@ describe('BackgroundMusicPlayer', () => {
       },
     })
 
+    // A page interaction must NOT start background music on its own.
     window.dispatchEvent(new Event('pointerdown'))
+    await flushPromises()
+    await nextTick()
+
+    expect(playMock).not.toHaveBeenCalled()
+
+    // Pressing play is what actually starts it.
+    await wrapper.get('[data-testid="background-player-toggle"]').trigger('click')
     await flushPromises()
     await nextTick()
 
@@ -104,12 +112,12 @@ describe('BackgroundMusicPlayer', () => {
     await nextTick()
 
     expect(pauseMock).toHaveBeenCalled()
-    expect(wrapper.get('[data-testid="background-player-status"]').text()).toContain('Paused by listener')
+    expect(wrapper.get('[data-testid="background-player-status"]').text()).toContain('Press play to start')
 
     window.dispatchEvent(new CustomEvent(SOURCE_AUDIO_STATE_EVENT, { detail: { active: false, clipId: 'marshall' } }))
     await flushPromises()
 
-    expect(wrapper.get('[data-testid="background-player-status"]').text()).toContain('Paused by listener')
+    expect(wrapper.get('[data-testid="background-player-status"]').text()).toContain('Press play to start')
   })
 
   it('moves to the next track after the current one ends', async () => {

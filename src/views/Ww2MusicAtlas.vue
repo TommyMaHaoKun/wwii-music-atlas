@@ -318,17 +318,17 @@ onBeforeUnmount(() => {
   inset: 0;
   display: grid;
   place-items: center;
-  color: rgba(239, 228, 208, 0.82);
+  color: rgba(255, 255, 255, 0.82);
   background:
-    radial-gradient(circle at center, rgba(201, 143, 88, 0.08), transparent 48%),
+    radial-gradient(circle at center, rgba(41, 151, 255, 0.08), transparent 48%),
     linear-gradient(180deg, rgba(7, 11, 16, 0.82), rgba(7, 11, 16, 0.94));
 }
 
 .stage-loading p {
   margin: 0;
   padding: 0.9rem 1rem;
-  border: 1px solid rgba(239, 228, 208, 0.08);
-  background: rgba(10, 15, 21, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(28, 28, 30, 0.58);
 }
 
 .right-rail {

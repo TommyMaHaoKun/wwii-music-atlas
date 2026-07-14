@@ -56,7 +56,6 @@ function isCurrentEvent(event: HistoricEvent) {
         <div class="band hot" :style="styleForBand(1936, 1940)">{{ language === 'zh' ? '扩张' : 'Expansion' }}</div>
         <div class="band smoke" :style="styleForBand(1941, 1943)">{{ language === 'zh' ? '总体战' : 'Total War' }}</div>
         <div class="band light" :style="styleForBand(1944, 1945)">{{ language === 'zh' ? '转折' : 'Turning Point' }}</div>
-        <div class="band dawn" :style="styleForBand(1946, 1949)">{{ language === 'zh' ? '重建' : 'Reconstruction' }}</div>
       </div>
 
       <div class="phase-lanes">
@@ -66,13 +65,13 @@ function isCurrentEvent(event: HistoricEvent) {
           </span>
           <div class="lane-body">
             <button
-              v-for="phase in phases.filter((entry) => entry.countryId === countryId)"
+              v-for="phase in phases.filter((entry) => entry.countryId === countryId && entry.startYear <= maxYear)"
               :key="`${countryId}-${phase.startYear}`"
               type="button"
               class="phase-span"
               :style="{
                 left: getLeft(phase.startYear),
-                width: getWidth(phase.startYear, phase.endYear + 1),
+                width: getWidth(phase.startYear, Math.min(phase.endYear + 1, maxYear)),
                 '--phase-color': countries.find((country) => country.id === countryId)?.color,
               }"
               @click="emit('update:year', phase.startYear)"

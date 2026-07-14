@@ -1092,7 +1092,7 @@ onBeforeUnmount(() => {
       }}
     </div>
     <div v-if="chrome !== 'minimal'" class="pin-legend">
-      <span><i class="dot dot-country" />{{ language === 'zh' ? '国家风格染色' : 'Country style tint' }}</span>
+      <span><i class="dot dot-country" />{{ language === 'zh' ? '地区历史着色' : 'Regional historical tint' }}</span>
       <span><i class="dot dot-artist" />{{ language === 'zh' ? '艺术家地图钉' : 'Artist pin' }}</span>
       <span><i class="dot dot-event" />{{ language === 'zh' ? '历史事件地图钉' : 'Historic event pin' }}</span>
     </div>

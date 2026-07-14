@@ -7,12 +7,14 @@ const route = useCurrentRoute()
 const atlas = useAtlasState()
 
 const links: Array<{ path: AtlasRoutePath; labelZh: string; labelEn: string }> = [
-  { path: '/', labelZh: '地图首页', labelEn: 'Map' },
-  { path: '/events', labelZh: '重大事件', labelEn: 'Events' },
-  { path: '/countries', labelZh: '国家风格', labelEn: 'Countries' },
-  { path: '/sources', labelZh: '档案资料', labelEn: 'Sources' },
-  { path: '/training-data', labelZh: '训练数据', labelEn: 'Training Data' },
-  { path: '/generate', labelZh: '生成音乐', labelEn: 'Generate' },
+  { path: '/', labelZh: '地图', labelEn: 'Map' },
+  { path: '/events', labelZh: '时间线', labelEn: 'Timeline' },
+  { path: '/countries', labelZh: '地区', labelEn: 'Regions' },
+  { path: '/works', labelZh: '作品', labelEn: 'Works' },
+  { path: '/people', labelZh: '人物', labelEn: 'People' },
+  { path: '/sources', labelZh: '资料', labelEn: 'Sources' },
+  { path: '/training-data', labelZh: '方法', labelEn: 'Methods' },
+  { path: '/generate', labelZh: '声音实验', labelEn: 'Experiment' },
 ]
 
 const routeQuery = computed(() => ({
@@ -35,8 +37,8 @@ function linkHref(path: AtlasRoutePath) {
   <div class="app-shell">
     <header class="site-nav">
       <button class="brand" type="button" @click="openPath('/')">
-        <span>1931—1949</span>
-        <strong>{{ atlas.language.value === 'zh' ? '二战音乐地图' : 'WWII Music Atlas' }}</strong>
+        <span>1931—1945</span>
+        <strong>{{ atlas.language.value === 'zh' ? '战争年代的音乐' : 'Music in an Age of War' }}</strong>
       </button>
 
       <nav class="nav-links" aria-label="Main navigation">
@@ -70,8 +72,8 @@ function linkHref(path: AtlasRoutePath) {
       <p class="footer-note">
         {{
           atlas.language.value === 'zh'
-            ? '地图边界按年份显示 1938 或 1945 年的历史政区，用于定位，不代表精确主权。'
-            : 'Borders show 1938 or 1945 political territories by year, for orientation — not precise sovereignty.'
+            ? '地图用于定位历史材料。法理领土、殖民统治、军事占领、傀儡政权与实际控制不能由一条边界替代。'
+            : 'The map locates historical material. Legal territory, colonial rule, occupation, puppet regimes and effective control are not interchangeable.'
         }}
       </p>
     </footer>

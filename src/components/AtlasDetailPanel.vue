@@ -83,7 +83,7 @@ function getEntityLabel(group: DetailSourceGroup) {
     return props.language === 'zh' ? '历史事件' : 'Historic event'
   }
 
-  return props.language === 'zh' ? '国家风格阶段' : 'Country style phase'
+  return props.language === 'zh' ? '地区音乐场景' : 'Regional music scene'
 }
 
 function getEntityTone(group: DetailSourceGroup) {
@@ -490,8 +490,8 @@ function handleSourceAudioStop(clipId: string) {
         <p class="legend-copy">
           {{
             language === 'zh'
-              ? '点击艺术家地图钉可进入人物详情；切到 Sources 标签后，会按艺术家、事件和国家风格阶段的顺序展示档案出处与音频状态。'
-              : 'Click an artist pin to focus a profile; the Sources tab then presents archival evidence and audio state in artist, event, and country-phase order.'
+              ? '点击人物地图钉可查看资料；切到 Sources 标签后，会按人物、事件和地区音乐场景展示档案出处与音频状态。'
+              : 'Click a person pin to inspect the record; the Sources tab then presents evidence and audio state by person, event and regional music scene.'
           }}
         </p>
       </div>

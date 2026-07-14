@@ -27,15 +27,15 @@ function isLayerEnabled(layer: LayerKey) {
 
 <template>
   <section class="controls" data-testid="atlas-controls">
-    <p class="kicker">{{ language === 'zh' ? '高中生 AI 学习项目' : 'HIGH SCHOOL AI STUDY PROJECT' }}</p>
+    <p class="kicker">{{ language === 'zh' ? '数字历史研究 · 1931—1945' : 'DIGITAL HISTORY · 1931—1945' }}</p>
     <h1 class="title">
-      {{ language === 'zh' ? '我用 AI 做的二战音乐地图' : 'My AI Study Map of WWII Music' }}
+      {{ language === 'zh' ? '战争年代的音乐地图' : 'Music in an Age of War' }}
     </h1>
     <p class="lede">
       {{
         language === 'zh'
-          ? '这是我做的一个高中历史音乐学习项目。我用 AI 先帮我整理 1931-1949 年的事件、歌曲、音乐家和来源，再自己检查哪些资料说得通。'
-          : 'This is a high-school history and music project. I used AI to help organize events, songs, musicians, and sources from 1931-1949, then checked the trail myself.'
+          ? '以作品、广播、演出与制度为线索，观察1931—1945年战争如何改变音乐的创作、传播和使用。'
+          : 'Works, broadcasts, performances and institutions trace how war changed musical creation, circulation and use from 1931 to 1945.'
       }}
     </p>
 
@@ -70,8 +70,8 @@ function isLayerEnabled(layer: LayerKey) {
           {{
             layer === 'styles'
               ? language === 'zh'
-                ? '风格'
-                : 'Styles'
+                ? '地区'
+                : 'Regions'
               : layer === 'events'
                 ? language === 'zh'
                   ? '事件'

@@ -19,7 +19,7 @@ describe('useAtlasState', () => {
     })
     await nextTick()
 
-    expect(atlas.activeYear.value).toBe(1949)
+    expect(atlas.activeYear.value).toBe(1945)
     expect(atlas.activeEvent.value?.id).toBe('pearl-harbor')
     expect(atlas.activeArtist.value?.id).toBe('glenn-miller')
     expect(atlas.selectedCountryIds.value).toEqual(['us', 'jp'])

@@ -195,7 +195,7 @@ export interface ChapterScene {
 }
 
 export const YEAR_MIN = 1931
-export const YEAR_MAX = 1949
+export const YEAR_MAX = 1945
 
 function generatedChapterImage(src: string, altZh: string, altEn: string): EventImage {
   return {

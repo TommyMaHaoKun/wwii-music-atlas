@@ -1,76 +1,38 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import AtlasEvents from '@/views/AtlasEvents.vue'
 import { useAtlasState } from '@/composables/useAtlasState'
-import { SOURCE_AUDIO_STATE_EVENT } from '@/lib/audioBus'
-
-vi.mock('@/components/GlobeStage.vue', () => ({
-  __esModule: true,
-  default: {
-    name: 'GlobeStage',
-    props: [
-      'activeYear',
-      'countries',
-      'enabledLayers',
-      'events',
-      'focusPose',
-      'language',
-      'selectedArtistId',
-      'selectedCountryIds',
-    ],
-    template: '<div data-testid="globe-stage" />',
-  },
-}))
+import { researchEvents } from '@/data/researchContent'
+import { navigateTo } from '@/router'
 
 describe('AtlasEvents', () => {
   beforeEach(async () => {
     const atlas = useAtlasState()
-
     await atlas.setLanguage('en')
-    await atlas.selectEvent('rome-berlin-axis')
+    await navigateTo({ path: '/events', query: { event: 'italy-armistice', year: 1943, lang: 'en' } })
   })
 
-  it('renders expanded related song research cards with local playback for every song', async () => {
+  it('renders facts, relation types, evidence limits and sources', async () => {
     const wrapper = mount(AtlasEvents)
-
     await flushPromises()
 
-    const songs = wrapper.get('[data-testid="event-related-songs"]')
-    const fischiaCard = wrapper.findAll('.song-card').find((card) => card.text().includes('Fischia il vento'))
-    const faccettaCard = wrapper.findAll('.song-card').find((card) => card.text().includes('Faccetta Nera'))
-    const cards = wrapper.findAll('[data-testid="event-related-songs"] .song-card')
-
-    expect(songs.text()).toContain('Context')
-    expect(songs.text()).toContain('Event relation')
-    expect(songs.text()).toContain('Listening guide')
-    expect(songs.text()).toContain('Rights')
-    expect(cards).toHaveLength(3)
-    expect(cards.every((card) => card.text().includes('Local playback'))).toBe(true)
-    expect(cards.every((card) => card.find('audio').exists())).toBe(true)
-    expect(fischiaCard?.text()).toContain('Local playback')
-    expect(fischiaCard?.find('audio').attributes('src')).toBe('/audio/events/fischia-il-vento.ogg')
-    expect(faccettaCard?.text()).toContain('Sensitive historical material')
-    expect(faccettaCard?.find('audio').attributes('src')).toBe('/audio/events/faccetta-nera.mp3')
+    expect(wrapper.text()).toContain('Italian Armistice')
+    expect(wrapper.text()).toContain('Event facts')
+    expect(wrapper.text()).toContain('Relation types')
+    expect(wrapper.text()).toContain('Evidence boundary')
+    expect(wrapper.text()).toContain('Fischia il vento')
+    expect(wrapper.findAll('.research-index button')).toHaveLength(researchEvents.length)
   })
 
-  it('dispatches source-audio state and falls back to source links after song playback errors', async () => {
+  it('switches events and keeps one active record', async () => {
     const wrapper = mount(AtlasEvents)
-
     await flushPromises()
 
-    const dispatchedEvents: CustomEvent[] = []
-    const handler = (event: Event) => dispatchedEvents.push(event as CustomEvent)
-    const audio = wrapper.get('audio')
-    const audioCount = wrapper.findAll('audio').length
+    await wrapper.findAll('.research-index button')[0].trigger('click')
+    await flushPromises()
 
-    window.addEventListener(SOURCE_AUDIO_STATE_EVENT, handler)
-    await audio.trigger('play')
-    await audio.trigger('error')
-    window.removeEventListener(SOURCE_AUDIO_STATE_EVENT, handler)
-
-    expect(dispatchedEvents[0].detail.active).toBe(true)
-    expect(dispatchedEvents.at(-1)?.detail.active).toBe(false)
-    expect(wrapper.findAll('audio')).toHaveLength(audioCount - 1)
-    expect(wrapper.text()).toContain('Playback failed. Use the source link instead.')
+    expect(wrapper.text()).toContain('Mukden Incident')
+    expect(wrapper.text()).toContain('legal territory, military occupation')
+    expect(wrapper.findAll('.research-heading')).toHaveLength(1)
   })
 })

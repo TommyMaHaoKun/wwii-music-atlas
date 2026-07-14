@@ -17,7 +17,7 @@ describe('AtlasControls', () => {
       },
     })
 
-    expect(wrapper.text()).toContain('我用 AI 做的二战音乐地图')
+    expect(wrapper.text()).toContain('战争年代的音乐地图')
 
     await wrapper.get('[data-testid="language-en"]').trigger('click')
 

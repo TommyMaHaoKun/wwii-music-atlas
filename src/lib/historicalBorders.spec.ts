@@ -121,4 +121,38 @@ describe('selectTrackedHistoricalFeatures', () => {
       expect(features[0].geometry.coordinates).toHaveLength(1)
     }
   })
+
+  it('does not render the misleading China, United States or USSR overlays', () => {
+    const collection = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          properties: { NAME: 'Chinese warlords' },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [[[80, 20], [130, 20], [130, 50], [80, 50], [80, 20]]],
+          },
+        },
+        {
+          type: 'Feature',
+          properties: { NAME: 'United States' },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [[[-125, 25], [-65, 25], [-65, 50], [-125, 50], [-125, 25]]],
+          },
+        },
+        {
+          type: 'Feature',
+          properties: { NAME: 'USSR' },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [[[20, 40], [170, 40], [170, 75], [20, 75], [20, 40]]],
+          },
+        },
+      ],
+    } as FeatureCollection
+
+    expect(selectTrackedHistoricalFeatures(collection)).toEqual([])
+  })
 })

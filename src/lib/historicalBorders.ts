@@ -21,6 +21,7 @@ const cache = new Map<SnapshotYear, HistoricalBorderFeature[]>()
 const pending = new Map<SnapshotYear, Promise<HistoricalBorderFeature[]>>()
 const SIMPLIFICATION_TOLERANCE_DEGREES = 0.25
 const MIN_COMPONENT_BOUNDS_AREA_SQUARE_DEGREES = 0.1
+const HIDDEN_COUNTRY_OVERLAYS = new Set(['cn', 'us', 'su'])
 
 interface GeographicBounds {
   minLongitude: number
@@ -206,14 +207,15 @@ function simplifyGeometry(geometry: Polygon | MultiPolygon): Polygon | MultiPoly
   }
 }
 
-// Only the eight countries covered by this atlas need interactive polygons.
+// Only countries with useful historical shapes need interactive polygons.
 // The base texture still provides the rest of the world's land and coastline;
-// the retained borders are simplified to the resolution visible on the globe.
+// China, the United States and the USSR are intentionally omitted because the
+// source shapes render as misleading coloured rings at globe scale.
 export function selectTrackedHistoricalFeatures(collection: FeatureCollection): HistoricalBorderFeature[] {
   return (collection.features ?? []).flatMap((feature) => {
     const properties = feature.properties as { NAME?: string } | null
     const countryId = matchHistoricalCountryId(properties?.NAME)
-    if (!countryId) {
+    if (!countryId || HIDDEN_COUNTRY_OVERLAYS.has(countryId)) {
       return []
     }
 

@@ -548,4 +548,144 @@ p {
     min-height: auto;
   }
 }
+
+/* Minimal comparison layout */
+.archive-page {
+  grid-template-columns: 18rem minmax(0, 1fr);
+  gap: 2rem;
+  width: min(100%, var(--page-width));
+  margin: 0 auto;
+  padding: 7rem 1.25rem 3rem;
+}
+
+.route-sidebar,
+.country-surface,
+.sources-cta {
+  background: transparent;
+  border: 0;
+  backdrop-filter: none;
+}
+
+.route-sidebar {
+  position: sticky;
+  top: 5.5rem;
+  gap: 0.8rem;
+  align-self: start;
+  padding: 0 1.5rem 0 0;
+  border-right: 1px solid var(--atlas-line);
+}
+
+.kicker {
+  letter-spacing: 0.12em;
+}
+
+h1 {
+  font-size: clamp(2rem, 3.6vw, 3.25rem);
+  font-weight: 540;
+}
+
+h2 {
+  font-size: clamp(1.55rem, 2.8vw, 2.5rem);
+  font-weight: 540;
+}
+
+.country-picker {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  margin-top: 0.4rem;
+}
+
+.country-picker button,
+.sources-cta button {
+  border: 0;
+  border-bottom: 1px solid var(--atlas-line);
+  background: transparent;
+}
+
+.country-picker button {
+  padding: 0.5rem 0.2rem;
+  font-size: 0.78rem;
+}
+
+.country-picker button.active {
+  color: var(--atlas-accent);
+  background: var(--atlas-accent-soft);
+  border-color: var(--atlas-line);
+}
+
+.year-control {
+  padding-top: 0.65rem;
+}
+
+.year-control span {
+  font-size: 1.5rem;
+}
+
+.country-grid {
+  gap: 0 2rem;
+}
+
+.country-surface {
+  gap: 0.9rem;
+  min-height: 0;
+  padding: 0;
+}
+
+.phase-history,
+.phase-listening,
+.metadata-grid section {
+  border-color: var(--atlas-line);
+}
+
+.phase-song {
+  border-color: var(--atlas-line);
+}
+
+.country-artist-list {
+  gap: 0;
+}
+
+.country-artist-list article {
+  padding: 0.65rem 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--atlas-line);
+}
+
+.country-artist-list img {
+  border-radius: 4px;
+}
+
+.sources-cta {
+  margin-top: 2rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--atlas-line);
+  border-bottom: 1px solid var(--atlas-line);
+}
+
+.sources-cta button {
+  color: var(--atlas-accent);
+}
+
+@media (max-width: 900px) {
+  .archive-page,
+  .country-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .archive-page {
+    gap: 2.5rem;
+    padding-top: 11.5rem;
+  }
+
+  .route-sidebar {
+    position: static;
+    padding-right: 0;
+    border-right: 0;
+  }
+
+  .country-grid {
+    gap: 2.5rem;
+  }
+}
 </style>

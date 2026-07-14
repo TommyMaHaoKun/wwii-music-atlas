@@ -35,8 +35,8 @@ function linkHref(path: AtlasRoutePath) {
   <div class="app-shell">
     <header class="site-nav">
       <button class="brand" type="button" @click="openPath('/')">
-        <span>{{ atlas.language.value === 'zh' ? 'AI 二战音乐研究' : 'AI WWII MUSIC STUDY' }}</span>
-        <strong>{{ atlas.language.value === 'zh' ? '我用 AI 做的二战音乐地图' : 'My AI Study Map of WWII Music' }}</strong>
+        <span>1931—1949</span>
+        <strong>{{ atlas.language.value === 'zh' ? '二战音乐地图' : 'WWII Music Atlas' }}</strong>
       </button>
 
       <nav class="nav-links" aria-label="Main navigation">
@@ -88,9 +88,9 @@ function linkHref(path: AtlasRoutePath) {
   z-index: 1;
   display: grid;
   gap: 0.35rem;
-  padding: 1.6rem clamp(1.2rem, 5vw, 3rem) 2.2rem;
+  padding: 1.4rem clamp(1.2rem, 5vw, 3rem) 1.8rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: #000000;
+  background: #0b0b0c;
   color: var(--atlas-faint);
   font-size: 0.76rem;
   line-height: 1.5;
@@ -122,16 +122,16 @@ function linkHref(path: AtlasRoutePath) {
   left: 0;
   z-index: 20;
   display: grid;
-  grid-template-columns: minmax(10rem, 1fr) auto minmax(6rem, 1fr);
-  gap: 1rem;
+  grid-template-columns: minmax(11rem, 1fr) auto minmax(5rem, 1fr);
+  gap: 1.5rem;
   align-items: center;
-  height: 52px;
-  padding: 0 clamp(1rem, 3vw, 2.2rem);
+  height: 58px;
+  padding: 0 max(1.25rem, calc((100vw - var(--page-width)) / 2));
   color: var(--atlas-text);
-  background: rgba(0, 0, 0, 0.6);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  background: rgba(11, 11, 12, 0.92);
+  border-bottom: 1px solid var(--atlas-line);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .brand,
@@ -143,9 +143,8 @@ function linkHref(path: AtlasRoutePath) {
 }
 
 .brand {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
+  display: grid;
+  gap: 0.05rem;
   justify-self: start;
   min-width: 0;
   max-width: 28rem;
@@ -154,11 +153,15 @@ function linkHref(path: AtlasRoutePath) {
 }
 
 .brand span {
-  display: none;
+  display: block;
+  color: var(--atlas-accent);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
 }
 
 .brand strong {
-  font-size: 0.98rem;
+  font-size: 0.9rem;
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.01em;
@@ -169,19 +172,20 @@ function linkHref(path: AtlasRoutePath) {
 
 .nav-links {
   display: flex;
-  gap: 0.15rem;
+  gap: 0.2rem;
   padding: 0;
   background: transparent;
   border: 0;
 }
 
 .nav-links a {
-  padding: 0.4rem 0.85rem;
+  position: relative;
+  padding: 0.45rem 0.68rem;
   color: rgba(245, 245, 247, 0.72);
   font-size: 0.82rem;
   font-weight: 400;
   text-decoration: none;
-  border-radius: 980px;
+  border-radius: 0;
   white-space: nowrap;
   transition: background 200ms ease, color 200ms ease;
 }
@@ -192,30 +196,39 @@ function linkHref(path: AtlasRoutePath) {
 
 .nav-links a.active {
   color: var(--atlas-text);
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
+}
+
+.nav-links a.active::after {
+  content: '';
+  position: absolute;
+  right: 0.68rem;
+  bottom: -0.54rem;
+  left: 0.68rem;
+  height: 1px;
+  background: var(--atlas-accent);
 }
 
 .nav-actions {
   display: flex;
   justify-self: end;
-  gap: 0.15rem;
-  padding: 0.15rem;
-  border-radius: 980px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.05);
+  gap: 0.05rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
 .nav-actions button {
   padding: 0.28rem 0.7rem;
   color: rgba(245, 245, 247, 0.72);
   font-size: 0.78rem;
-  border-radius: 980px;
+  border-radius: 4px;
   transition: background 200ms ease, color 200ms ease;
 }
 
 .nav-actions button.active {
-  color: #fff;
-  background: var(--atlas-accent);
+  color: var(--atlas-accent);
+  background: transparent;
 }
 
 @media (max-width: 1180px) {
@@ -223,7 +236,7 @@ function linkHref(path: AtlasRoutePath) {
     grid-template-columns: minmax(0, 1fr) auto;
     height: auto;
     row-gap: 0.5rem;
-    padding: 0.6rem clamp(0.8rem, 3vw, 1.4rem);
+    padding: 0.55rem clamp(0.8rem, 3vw, 1.4rem);
   }
 
   .nav-links {
@@ -237,6 +250,10 @@ function linkHref(path: AtlasRoutePath) {
   .nav-links a {
     flex: 0 0 auto;
     text-align: center;
+  }
+
+  .nav-links a.active::after {
+    bottom: -0.2rem;
   }
 
   .nav-actions {

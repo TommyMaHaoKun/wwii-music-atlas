@@ -218,4 +218,95 @@ p {
     padding-top: 12rem;
   }
 }
+
+/* Minimal bibliography layout */
+.sources-page {
+  grid-template-columns: 20rem minmax(0, 1fr);
+  gap: 2.5rem;
+  width: min(100%, var(--page-width));
+  margin: 0 auto;
+  padding: 7rem 1.25rem 3rem;
+}
+
+.route-sidebar,
+.source-group {
+  background: transparent;
+  border: 0;
+  backdrop-filter: none;
+}
+
+.route-sidebar {
+  position: sticky;
+  top: 5.5rem;
+  gap: 0.8rem;
+  padding: 0 1.5rem 0 0;
+  border-right: 1px solid var(--atlas-line);
+}
+
+.kicker {
+  letter-spacing: 0.12em;
+}
+
+h1 {
+  font-size: clamp(2rem, 3.6vw, 3.25rem);
+  font-weight: 540;
+}
+
+h2 {
+  font-size: clamp(1.4rem, 2.4vw, 2.15rem);
+  font-weight: 540;
+}
+
+.source-stack {
+  gap: 2.5rem;
+}
+
+.source-group {
+  gap: 1.1rem;
+  padding: 0 0 2.5rem;
+  border-bottom: 1px solid var(--atlas-line);
+}
+
+.record-grid {
+  gap: 0 1.25rem;
+}
+
+.record-card {
+  gap: 0.35rem;
+  padding: 0.9rem 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--atlas-line);
+}
+
+.record-card:hover {
+  padding-left: 0.65rem;
+  background: var(--atlas-accent-soft);
+  border-color: var(--atlas-line);
+}
+
+.record-card span,
+.audio span {
+  padding: 0;
+  color: var(--atlas-accent);
+  background: transparent;
+}
+
+@media (max-width: 900px) {
+  .sources-page,
+  .record-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sources-page {
+    gap: 2.5rem;
+    padding-top: 11.5rem;
+  }
+
+  .route-sidebar {
+    position: static;
+    padding-right: 0;
+    border-right: 0;
+  }
+}
 </style>

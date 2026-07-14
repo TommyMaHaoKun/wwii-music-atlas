@@ -1,4 +1,4 @@
-import type { Feature, FeatureCollection } from 'geojson'
+import type { Feature, FeatureCollection, Geometry } from 'geojson'
 import { publicAssetPath } from '@/lib/publicAssets'
 
 // Period-accurate political borders from the historical-basemaps project
@@ -10,10 +10,38 @@ export function pickSnapshotYear(year: number): SnapshotYear {
   return year >= 1945 ? 1945 : 1938
 }
 
-const cache = new Map<SnapshotYear, Feature[]>()
-const pending = new Map<SnapshotYear, Promise<Feature[]>>()
+export interface HistoricalBorderProperties {
+  NAME?: string
+  __atlasCountryId: string
+}
 
-export function loadHistoricalBorders(snapshot: SnapshotYear): Promise<Feature[]> {
+export type HistoricalBorderFeature = Feature<Geometry, HistoricalBorderProperties>
+
+const cache = new Map<SnapshotYear, HistoricalBorderFeature[]>()
+const pending = new Map<SnapshotYear, Promise<HistoricalBorderFeature[]>>()
+
+// Only the eight countries covered by this atlas need interactive, extruded
+// polygons. The base texture still provides the rest of the world's land and
+// coastline, while this cuts polygon triangulation and ray-casting by ~95%.
+export function selectTrackedHistoricalFeatures(collection: FeatureCollection): HistoricalBorderFeature[] {
+  return (collection.features ?? []).flatMap((feature) => {
+    const properties = feature.properties as { NAME?: string } | null
+    const countryId = matchHistoricalCountryId(properties?.NAME)
+    if (!countryId) {
+      return []
+    }
+
+    return [{
+      ...feature,
+      properties: {
+        ...(properties ?? {}),
+        __atlasCountryId: countryId,
+      },
+    } as HistoricalBorderFeature]
+  })
+}
+
+export function loadHistoricalBorders(snapshot: SnapshotYear): Promise<HistoricalBorderFeature[]> {
   const cached = cache.get(snapshot)
   if (cached) {
     return Promise.resolve(cached)
@@ -33,7 +61,7 @@ export function loadHistoricalBorders(snapshot: SnapshotYear): Promise<Feature[]
       return response.json() as Promise<FeatureCollection>
     })
     .then((collection) => {
-      const features = collection.features ?? []
+      const features = selectTrackedHistoricalFeatures(collection)
       cache.set(snapshot, features)
       pending.delete(snapshot)
       return features
@@ -45,6 +73,10 @@ export function loadHistoricalBorders(snapshot: SnapshotYear): Promise<Feature[]
 
   pending.set(snapshot, promise)
   return promise
+}
+
+export function preloadHistoricalBorders(snapshot: SnapshotYear) {
+  return loadHistoricalBorders(snapshot).then(() => undefined).catch(() => undefined)
 }
 
 // Map a historical polygon's NAME to one of the eight tracked country ids.

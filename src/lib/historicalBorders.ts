@@ -71,6 +71,20 @@ function isPositionInBounds(position: Position, bounds: GeographicBounds) {
 
 function polygonTouchesCoreRegion(polygon: Position[][], countryId: string) {
   const bounds = CORE_COUNTRY_BOUNDS[countryId] ?? []
+
+  // The 1938 Japanese feature contains one very large component spanning
+  // Manchuria. Its eastern edge touches Japan's bounds, so test that component
+  // by its centre instead of accepting it for a single intersecting vertex.
+  if (countryId === 'jp' && polygon[0]?.length) {
+    const longitudes = polygon[0].map(([longitude]) => longitude)
+    const latitudes = polygon[0].map(([, latitude]) => latitude)
+    const centre: Position = [
+      (Math.min(...longitudes) + Math.max(...longitudes)) / 2,
+      (Math.min(...latitudes) + Math.max(...latitudes)) / 2,
+    ]
+    return bounds.some((region) => isPositionInBounds(centre, region))
+  }
+
   return polygon[0]?.some((position) =>
     bounds.some((region) => isPositionInBounds(position, region)),
   ) ?? false

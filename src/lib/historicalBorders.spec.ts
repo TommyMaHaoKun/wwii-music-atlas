@@ -155,4 +155,36 @@ describe('selectTrackedHistoricalFeatures', () => {
 
     expect(selectTrackedHistoricalFeatures(collection)).toEqual([])
   })
+
+  it('keeps the Japanese islands without the Manchurian component', () => {
+    const collection = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          properties: { NAME: 'Empire of Japan' },
+          geometry: {
+            type: 'MultiPolygon',
+            coordinates: [
+              [[
+                [135, 34], [141, 34], [141, 40], [135, 40], [135, 34],
+              ]],
+              [[
+                [116, 34], [135, 34], [135, 53], [116, 53], [116, 34],
+              ]],
+            ],
+          },
+        },
+      ],
+    } as FeatureCollection
+
+    const features = selectTrackedHistoricalFeatures(collection)
+
+    expect(features).toHaveLength(1)
+    expect(features[0]?.properties.__atlasCountryId).toBe('jp')
+    expect(features[0]?.geometry.type).toBe('MultiPolygon')
+    if (features[0]?.geometry.type === 'MultiPolygon') {
+      expect(features[0].geometry.coordinates).toHaveLength(1)
+    }
+  })
 })

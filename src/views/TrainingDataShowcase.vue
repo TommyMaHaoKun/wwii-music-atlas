@@ -981,4 +981,258 @@ figcaption {
     min-height: 11rem;
   }
 }
+
+/* Editorial data notebook: sections instead of stacked glass cards. */
+.training-page {
+  width: min(100%, var(--page-width));
+  margin: 0 auto;
+  padding: 7rem 1.25rem 3rem;
+}
+
+.training-intro,
+.workflow-surface,
+.fine-tune-surface,
+.profiles-surface,
+.samples-surface,
+.figures-surface {
+  max-width: none;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  backdrop-filter: none;
+}
+
+.training-intro {
+  grid-template-columns: minmax(0, 0.85fr) minmax(30rem, 1.15fr);
+  min-height: 0;
+  padding: 1rem 0 3rem;
+  background: transparent;
+  border-bottom: 1px solid var(--atlas-line);
+  animation: none;
+}
+
+.kicker {
+  letter-spacing: 0.12em;
+}
+
+h1 {
+  font-size: clamp(2.25rem, 4.5vw, 4rem);
+  font-weight: 540;
+}
+
+h2 {
+  font-size: clamp(1.65rem, 3vw, 2.45rem);
+  font-weight: 540;
+}
+
+h3 {
+  font-size: 1.3rem;
+  font-weight: 560;
+}
+
+.metric-rack {
+  border: 0;
+  border-top: 1px solid var(--atlas-line);
+  border-bottom: 1px solid var(--atlas-line);
+  background: transparent;
+}
+
+.metric-rack article {
+  padding: 0.8rem;
+  border-color: var(--atlas-line);
+}
+
+.metric-rack strong {
+  color: var(--atlas-accent);
+  font-size: 1.55rem;
+}
+
+.workflow-surface,
+.fine-tune-surface,
+.profiles-surface,
+.samples-surface,
+.figures-surface {
+  gap: 1.4rem;
+  padding: 3rem 0;
+  border-bottom: 1px solid var(--atlas-line);
+}
+
+.workflow-layout {
+  grid-template-columns: 17rem minmax(0, 1fr);
+  gap: 2rem;
+}
+
+.step-rail {
+  gap: 0;
+}
+
+.step-rail button {
+  min-height: 3rem;
+  padding: 0.6rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--atlas-line);
+  background: transparent;
+}
+
+.step-rail button:hover,
+.step-rail button:focus-visible,
+.step-rail button.active {
+  padding-left: 0.55rem;
+  color: var(--atlas-accent);
+  background: var(--atlas-accent-soft);
+  border-color: var(--atlas-line);
+  transform: none;
+}
+
+.lab-output {
+  gap: 1rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+code {
+  color: var(--atlas-accent);
+  background: #080809;
+  border-color: var(--atlas-line);
+  border-radius: 6px;
+}
+
+.artifact-grid {
+  gap: 1px;
+  background: var(--atlas-line);
+}
+
+.artifact-grid div {
+  background: #0b0b0c;
+  border: 0;
+}
+
+.model-highlight-grid,
+.profile-grid {
+  gap: 0;
+  border-top: 1px solid var(--atlas-line);
+}
+
+.model-highlight-grid article,
+.profile-grid article {
+  padding: 1rem;
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--atlas-line);
+  border-bottom: 1px solid var(--atlas-line);
+}
+
+.model-highlight-grid article:last-child,
+.profile-grid article:last-child {
+  border-right: 0;
+}
+
+.profile-grid article:hover {
+  background: var(--atlas-accent-soft);
+  border-color: var(--atlas-line);
+  transform: none;
+}
+
+.model-source-links a {
+  padding: 0.35rem 0;
+  color: var(--atlas-accent);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(216, 183, 126, 0.45);
+}
+
+.fine-tune-timeline {
+  gap: 0;
+}
+
+.fine-tune-step {
+  gap: 2rem;
+  padding: 1.5rem 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--atlas-line);
+}
+
+.fine-tune-image img {
+  border-radius: 6px;
+}
+
+.sample-list {
+  gap: 0;
+}
+
+.sample-row {
+  padding: 1rem 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--atlas-line);
+}
+
+.sample-row:hover,
+.sample-row:focus-within {
+  padding-left: 0.75rem;
+  background: var(--atlas-accent-soft);
+  border-color: var(--atlas-line);
+  transform: none;
+}
+
+.sample-row.sensitive {
+  background: transparent;
+  border-color: rgba(211, 134, 114, 0.32);
+}
+
+.sample-tags span {
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+.figure-grid {
+  gap: 1.25rem;
+}
+
+.figure-grid figure {
+  background: transparent;
+  border-color: var(--atlas-line);
+}
+
+@media (max-width: 1180px) {
+  .training-intro,
+  .workflow-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .training-intro {
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .training-page {
+    padding-top: 11.5rem;
+  }
+
+  .metric-rack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metric-rack article {
+    border-bottom: 1px solid var(--atlas-line);
+  }
+
+  .model-highlight-grid,
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .model-highlight-grid article,
+  .profile-grid article {
+    border-right: 0;
+  }
+
+  .fine-tune-step {
+    grid-template-columns: 1fr;
+  }
+}
 </style>

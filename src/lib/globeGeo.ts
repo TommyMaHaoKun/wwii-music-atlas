@@ -21,6 +21,9 @@ const worldFeatures = (feature(
   (worldAtlas as any).objects.countries,
 ) as unknown as FeatureCollection<FeatureGeometry, { name?: string }>).features
 
+let earthTextureCache = ''
+let earthBumpTextureCache = ''
+
 export function getWorldCountryFeatures() {
   return worldFeatures
 }
@@ -124,10 +127,10 @@ function drawOceanTexture(context: CanvasRenderingContext2D, width: number, heig
   context.strokeStyle = 'rgba(151, 191, 198, 0.055)'
   context.lineWidth = 1
 
-  for (let row = 0; row < 42; row += 1) {
-    const y = (row / 42) * height
+  for (let row = 0; row < 24; row += 1) {
+    const y = (row / 24) * height
     context.beginPath()
-    for (let x = 0; x <= width; x += 28) {
+    for (let x = 0; x <= width; x += 40) {
       const wave = Math.sin(x * 0.006 + row * 1.7) * 8 + Math.sin(x * 0.017 + row) * 3
       if (x === 0) {
         context.moveTo(x, y + wave)
@@ -171,10 +174,10 @@ function drawLandRelief(context: CanvasRenderingContext2D, geometry: FeatureGeom
   context.strokeStyle = 'rgba(220, 235, 255, 0.06)'
   context.lineWidth = 1
 
-  for (let row = 0; row < 36; row += 1) {
-    const y = (row / 36) * height
+  for (let row = 0; row < 18; row += 1) {
+    const y = (row / 18) * height
     context.beginPath()
-    for (let x = 0; x <= width; x += 34) {
+    for (let x = 0; x <= width; x += 48) {
       const rise = Math.sin(x * 0.009 + row * 1.9) * 10 + Math.sin((x + row * 19) * 0.025) * 2
       if (x === 0) {
         context.moveTo(x, y + rise)
@@ -186,7 +189,7 @@ function drawLandRelief(context: CanvasRenderingContext2D, geometry: FeatureGeom
   }
 
   context.fillStyle = 'rgba(34, 48, 68, 0.08)'
-  for (let index = 0; index < 38; index += 1) {
+  for (let index = 0; index < 20; index += 1) {
     const x = pseudoNoise(index * 17.3, width) * width
     const y = pseudoNoise(index * 29.7, height) * height
     const radius = 14 + pseudoNoise(index, 7) * 54
@@ -227,8 +230,12 @@ function createTextureCanvas(width: number, height: number) {
 }
 
 export function createEarthTexture() {
-  const width = 2048
-  const height = 1024
+  if (earthTextureCache) {
+    return earthTextureCache
+  }
+
+  const width = 1024
+  const height = 512
   const { canvas, context } = createTextureCanvas(width, height)
 
   if (!context) {
@@ -295,12 +302,17 @@ export function createEarthTexture() {
   context.fillStyle = vignette
   context.fillRect(0, 0, width, height)
 
-  return canvas.toDataURL('image/png')
+  earthTextureCache = canvas.toDataURL('image/jpeg', 0.84)
+  return earthTextureCache
 }
 
 export function createEarthBumpTexture() {
-  const width = 1024
-  const height = 512
+  if (earthBumpTextureCache) {
+    return earthBumpTextureCache
+  }
+
+  const width = 512
+  const height = 256
   const { canvas, context } = createTextureCanvas(width, height)
 
   if (!context) {
@@ -338,5 +350,6 @@ export function createEarthBumpTexture() {
 
   drawDeterministicGrain(context, width, height)
 
-  return canvas.toDataURL('image/png')
+  earthBumpTextureCache = canvas.toDataURL('image/jpeg', 0.72)
+  return earthBumpTextureCache
 }

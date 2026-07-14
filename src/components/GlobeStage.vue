@@ -2,13 +2,18 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import Globe from 'globe.gl'
 import * as THREE from 'three'
-import type { Feature } from 'geojson'
 import { getArtistName, getArtistNote, getArtistRole, type ArtistWork } from '@/data/atlasMarkers'
 import type { CountryProfile, GlobeFocus, HistoricEvent, Language, LayerKey } from '@/data/ww2MusicAtlas'
 import { artistMarkers, getActiveStylePhase, getCountryName, getEventTitle, getStyleName, getVisibleInfluenceArcs, influenceArcs, stylePhases } from '@/lib/atlas'
 import { getEventCategoryConfig, getEventCategoryLabel, type EventCategory } from '@/lib/eventIcons'
 import { createEarthBumpTexture, createEarthTexture } from '@/lib/globeGeo'
-import { loadHistoricalBorders, matchHistoricalCountryId, pickSnapshotYear, type SnapshotYear } from '@/lib/historicalBorders'
+import {
+  loadHistoricalBorders,
+  pickSnapshotYear,
+  preloadHistoricalBorders,
+  type HistoricalBorderFeature,
+  type SnapshotYear,
+} from '@/lib/historicalBorders'
 import {
   buildInfluenceLabels,
   buildInfluenceRenderArcs,
@@ -92,14 +97,26 @@ const container = ref<HTMLDivElement | null>(null)
 const fallback = ref(false)
 const activeInfluenceId = ref<string | null>(null)
 const hoveredInfluenceId = ref<string | null>(null)
-const historicalFeatures = ref<Feature[]>([])
+const historicalFeatures = ref<HistoricalBorderFeature[]>([])
 let loadedSnapshot: SnapshotYear | null = null
 const eventPinSrc = publicAssetPath('/images/generated/ww2-event-pin.png')
 const artistPinSrc = publicAssetPath('/images/generated/ww2-artist-pin.png')
 
 let globe: any = null
 let resizeObserver: ResizeObserver | null = null
+let visibilityObserver: IntersectionObserver | null = null
 let detachWheelGuard: (() => void) | null = null
+let preloadIdleHandle: number | null = null
+let preloadTimer: number | null = null
+let fullSyncFrame: number | null = null
+let htmlSyncFrame: number | null = null
+let lastRenderedPolygonFeatures: HistoricalBorderFeature[] | null = null
+let lastPolygonStyleSignature = ''
+let lastWidth = 0
+let lastHeight = 0
+let stageIsVisible = true
+let constrainedDevice = false
+const customSceneObjects: THREE.Object3D[] = []
 
 // Reused objects for pointer-over-globe hit testing (wheel scroll vs. zoom).
 const GLOBE_RADIUS = 100
@@ -304,9 +321,75 @@ function escapeHtml(value: string) {
     .replaceAll("'", '&#39;')
 }
 
-function getCountryForFeature(feature: Feature) {
-  const countryId = matchHistoricalCountryId((feature.properties as { NAME?: string } | null)?.NAME)
-  return countryId ? props.countries.find((country) => country.id === countryId) ?? null : null
+const countryById = computed(() => new Map(props.countries.map((country) => [country.id, country])))
+
+function getCountryForFeature(feature: HistoricalBorderFeature) {
+  const countryId = feature.properties?.__atlasCountryId
+  return countryId ? countryById.value.get(countryId) ?? null : null
+}
+
+function detectConstrainedDevice() {
+  const nav = navigator as Navigator & { deviceMemory?: number }
+  const lowMemory = typeof nav.deviceMemory === 'number' && nav.deviceMemory <= 4
+  const lowCpu = typeof nav.hardwareConcurrency === 'number' && nav.hardwareConcurrency <= 4
+  return lowMemory || lowCpu || window.matchMedia('(max-width: 760px)').matches
+}
+
+function scheduleSnapshotPreload(snapshot: SnapshotYear) {
+  const idleWindow = window as unknown as {
+    requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number
+    cancelIdleCallback?: (handle: number) => void
+  }
+
+  if (preloadIdleHandle !== null && idleWindow.cancelIdleCallback) {
+    idleWindow.cancelIdleCallback(preloadIdleHandle)
+    preloadIdleHandle = null
+  }
+  if (preloadTimer !== null) {
+    window.clearTimeout(preloadTimer)
+    preloadTimer = null
+  }
+
+  const nextSnapshot: SnapshotYear = snapshot === 1938 ? 1945 : 1938
+  const run = () => {
+    preloadIdleHandle = null
+    preloadTimer = null
+    void preloadHistoricalBorders(nextSnapshot)
+  }
+
+  if (idleWindow.requestIdleCallback) {
+    preloadIdleHandle = idleWindow.requestIdleCallback(run, { timeout: 2400 })
+    return
+  }
+
+  preloadTimer = setTimeout(run, 1200) as unknown as number
+}
+
+function scheduleFullSync() {
+  if (fullSyncFrame !== null) {
+    return
+  }
+
+  if (htmlSyncFrame !== null) {
+    window.cancelAnimationFrame(htmlSyncFrame)
+    htmlSyncFrame = null
+  }
+
+  fullSyncFrame = window.requestAnimationFrame(() => {
+    fullSyncFrame = null
+    syncGlobe()
+  })
+}
+
+function scheduleHtmlSync() {
+  if (fullSyncFrame !== null || htmlSyncFrame !== null) {
+    return
+  }
+
+  htmlSyncFrame = window.requestAnimationFrame(() => {
+    htmlSyncFrame = null
+    syncHtmlLayer()
+  })
 }
 
 // Load the historical border snapshot that matches the active year (1938 or
@@ -318,12 +401,16 @@ function ensureHistoricalBorders() {
   }
 
   loadedSnapshot = snapshot
+  // Drop the previous snapshot immediately so a year change never rebuilds
+  // the old geometry with new styles while the next snapshot is in flight.
+  historicalFeatures.value = []
   loadHistoricalBorders(snapshot)
     .then((features) => {
       // Guard against a race if the year moved to another snapshot meanwhile.
       if (pickSnapshotYear(props.activeYear) === snapshot) {
         historicalFeatures.value = features
-        syncGlobe()
+        scheduleFullSync()
+        scheduleSnapshotPreload(snapshot)
       }
     })
     .catch(() => {
@@ -355,8 +442,16 @@ function updateSize() {
     return
   }
 
-  globe.width(container.value.clientWidth)
-  globe.height(container.value.clientHeight)
+  const width = Math.round(container.value.clientWidth)
+  const height = Math.round(container.value.clientHeight)
+  if (!width || !height || (width === lastWidth && height === lastHeight)) {
+    return
+  }
+
+  lastWidth = width
+  lastHeight = height
+  globe.width(width)
+  globe.height(height)
 }
 
 function deterministicUnit(index: number, salt: number) {
@@ -394,27 +489,31 @@ function addAtmosphereObjects() {
   }
 
   const scene = globe.scene()
-  scene.add(createStarField(520, 2500, 1.7, 0.34, '#f5f5f7'))
-  scene.add(createStarField(340, 3600, 2.5, 0.22, '#9ec7d8'))
-  scene.add(createStarField(150, 4600, 3.1, 0.12, '#f5f5f7'))
-  scene.add(new THREE.AmbientLight('#b8c4d4', 0.66))
-  scene.add(new THREE.HemisphereLight('#cfe0f2', '#05070a', 0.48))
+  const add = (object: THREE.Object3D) => {
+    customSceneObjects.push(object)
+    scene.add(object)
+  }
+
+  add(createStarField(constrainedDevice ? 220 : 420, 2800, 1.8, 0.28, '#f5f5f7'))
+  add(createStarField(constrainedDevice ? 90 : 180, 4100, 2.6, 0.16, '#9ec7d8'))
+  add(new THREE.AmbientLight('#b8c4d4', 0.7))
+  add(new THREE.HemisphereLight('#cfe0f2', '#05070a', 0.42))
 
   const keyLight = new THREE.DirectionalLight('#dce8f7', 1.58)
   keyLight.position.set(-300, 190, 250)
-  scene.add(keyLight)
+  add(keyLight)
 
   const fillLight = new THREE.DirectionalLight('#6f97c5', 0.74)
   fillLight.position.set(240, -120, -210)
-  scene.add(fillLight)
+  add(fillLight)
 
   const rimLight = new THREE.DirectionalLight('#3f7fd0', 0.95)
   rimLight.position.set(120, 90, -300)
-  scene.add(rimLight)
+  add(rimLight)
 
-  scene.add(
+  add(
     new THREE.Mesh(
-      new THREE.SphereGeometry(103.5, 64, 64),
+      new THREE.SphereGeometry(103.5, constrainedDevice ? 28 : 42, constrainedDevice ? 20 : 30),
       new THREE.MeshBasicMaterial({
         color: '#3a6fc0',
         side: THREE.BackSide,
@@ -426,22 +525,9 @@ function addAtmosphereObjects() {
     ),
   )
 
-  scene.add(
-    new THREE.Mesh(
-      new THREE.SphereGeometry(107.8, 64, 64),
-      new THREE.MeshBasicMaterial({
-        color: '#5f8fc8',
-        side: THREE.BackSide,
-        transparent: true,
-        opacity: 0.05,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-      }),
-    ),
-  )
 }
 
-function tuneGlobeMaterial() {
+function tuneGlobeMaterial(useBumpTexture: boolean) {
   if (!globe?.globeMaterial) {
     return
   }
@@ -464,7 +550,7 @@ function tuneGlobeMaterial() {
   }
 
   if ('bumpScale' in material) {
-    material.bumpScale = 4.8
+    material.bumpScale = useBumpTexture ? 3.2 : 0
   }
 
   material.needsUpdate = true
@@ -680,7 +766,90 @@ function setHoveredInfluence(influenceId: string | null) {
   hoveredInfluenceId.value = influenceId
 }
 
-function syncGlobe() {
+function getPolygonStyleSignature() {
+  return props.countries.map((country) => {
+    const phase = getActiveStylePhase(stylePhases, country.id, props.activeYear)
+    const selected = props.selectedCountryIds.includes(country.id) ? 1 : 0
+    return `${country.id}:${phase?.startYear ?? 0}-${phase?.endYear ?? 0}:${selected}`
+  }).join('|')
+}
+
+function syncPolygonLayer() {
+  if (!globe) {
+    return
+  }
+
+  const features = historicalFeatures.value
+  const signature = getPolygonStyleSignature()
+  if (features === lastRenderedPolygonFeatures && signature === lastPolygonStyleSignature) {
+    return
+  }
+
+  lastRenderedPolygonFeatures = features
+  lastPolygonStyleSignature = signature
+
+  globe
+    .polygonsTransitionDuration(0)
+    .polygonCapCurvatureResolution(constrainedDevice ? 16 : 12)
+    .polygonCapColor((feature: HistoricalBorderFeature) => {
+      const country = getCountryForFeature(feature)
+      if (!country) {
+        return 'rgba(255, 255, 255, 0.04)'
+      }
+
+      const activeColor = getPhaseColor(country)
+      const isSelected = props.selectedCountryIds.includes(country.id)
+      return withAlpha(activeColor, isSelected ? 0.68 : 0.32)
+    })
+    .polygonSideColor((feature: HistoricalBorderFeature) => {
+      const country = getCountryForFeature(feature)
+      return country ? withAlpha(getPhaseColor(country), 0.16) : 'rgba(255, 255, 255, 0.02)'
+    })
+    .polygonStrokeColor((feature: HistoricalBorderFeature) => {
+      const country = getCountryForFeature(feature)
+      if (!country) {
+        return 'rgba(255,255,255,0.04)'
+      }
+
+      return props.selectedCountryIds.includes(country.id)
+        ? withAlpha(country.color, 0.86)
+        : 'rgba(255,255,255,0.075)'
+    })
+    .polygonAltitude((feature: HistoricalBorderFeature) => {
+      const country = getCountryForFeature(feature)
+      if (!country) {
+        return 0.002
+      }
+
+      return props.selectedCountryIds.includes(country.id) ? 0.026 : 0.007
+    })
+    .polygonLabel((feature: HistoricalBorderFeature) => {
+      const country = getCountryForFeature(feature)
+      return country ? buildCountryTooltip(country) : ''
+    })
+    .polygonsData(features)
+}
+
+function syncHtmlLayer() {
+  if (!globe) {
+    return
+  }
+
+  globe
+    .htmlElementsData(globeHtmlElements.value)
+    .htmlLat('lat')
+    .htmlLng('lng')
+    .htmlAltitude((item: GlobeHtmlElement) => (
+      item.type === 'influence-label' || item.type === 'influence-hit-target'
+        ? item.altitude
+        : item.type === 'event'
+          ? 0.028
+          : 0.02
+    ))
+    .htmlElement((item: GlobeHtmlElement) => createHtmlElement(item))
+}
+
+function syncInfluenceLayers() {
   if (!globe) {
     return
   }
@@ -698,55 +867,6 @@ function syncGlobe() {
   }))
 
   globe
-    .polygonsData(historicalFeatures.value)
-    .polygonCapColor((feature: Feature) => {
-      const country = getCountryForFeature(feature)
-      if (!country) {
-        return 'rgba(255, 255, 255, 0.04)'
-      }
-
-      const activeColor = getPhaseColor(country)
-      const isSelected = props.selectedCountryIds.includes(country.id)
-      return withAlpha(activeColor, isSelected ? 0.68 : 0.32)
-    })
-    .polygonSideColor((feature: Feature) => {
-      const country = getCountryForFeature(feature)
-      return country ? withAlpha(getPhaseColor(country), 0.16) : 'rgba(255, 255, 255, 0.02)'
-    })
-    .polygonStrokeColor((feature: Feature) => {
-      const country = getCountryForFeature(feature)
-      if (!country) {
-        return 'rgba(255,255,255,0.04)'
-      }
-
-      return props.selectedCountryIds.includes(country.id)
-        ? withAlpha(country.color, 0.86)
-        : 'rgba(255,255,255,0.075)'
-    })
-    .polygonAltitude((feature: Feature) => {
-      const country = getCountryForFeature(feature)
-      if (!country) {
-        return 0.002
-      }
-
-      return props.selectedCountryIds.includes(country.id) ? 0.026 : 0.007
-    })
-    .polygonLabel((feature: Feature) => {
-      const country = getCountryForFeature(feature)
-      return country ? buildCountryTooltip(country) : ''
-    })
-    .polygonsTransitionDuration(700)
-    .htmlElementsData(globeHtmlElements.value)
-    .htmlLat('lat')
-    .htmlLng('lng')
-    .htmlAltitude((item: GlobeHtmlElement) => (
-      item.type === 'influence-label' || item.type === 'influence-hit-target'
-        ? item.altitude
-        : item.type === 'event'
-          ? 0.028
-          : 0.02
-    ))
-    .htmlElement((item: GlobeHtmlElement) => createHtmlElement(item))
     .arcsData(arcs)
     .arcColor('color')
     .arcDashLength('dashLength')
@@ -754,7 +874,7 @@ function syncGlobe() {
     .arcAltitude('altitude')
     .arcDashGap('dashGap')
     .arcDashInitialGap((arc: { startLat: number; startLng: number }) => deterministicUnit(Math.round((arc.startLat + 90) * 100), Math.round((arc.startLng + 180) * 100)))
-    .arcDashAnimateTime(1250)
+    .arcDashAnimateTime(constrainedDevice ? 0 : 1250)
     .arcCircularResolution(8)
     .objectsData(influenceArrowObjects.value)
     .objectLat('lat')
@@ -763,6 +883,12 @@ function syncGlobe() {
     .objectRotation((arrow: InfluenceArrowObject) => ({ x: 90, z: arrow.bearing }))
     .objectFacesSurface(true)
     .objectThreeObject((arrow: InfluenceArrowObject) => createInfluenceArrowObject(arrow))
+}
+
+function syncGlobe() {
+  syncPolygonLayer()
+  syncHtmlLayer()
+  syncInfluenceLayers()
 }
 
 function focusCamera() {
@@ -774,21 +900,70 @@ function focusCamera() {
   globe.pointOfView(props.focusPose, duration)
 }
 
+function syncAnimationState() {
+  if (!globe) {
+    return
+  }
+
+  if (stageIsVisible && !document.hidden) {
+    globe.resumeAnimation()
+  } else {
+    globe.pauseAnimation()
+  }
+}
+
+function handleVisibilityChange() {
+  syncAnimationState()
+}
+
+function disposeCustomSceneObjects() {
+  if (!globe) {
+    return
+  }
+
+  const scene = globe.scene()
+  customSceneObjects.forEach((object) => {
+    scene.remove(object)
+    object.traverse((child) => {
+      const renderable = child as THREE.Object3D & {
+        geometry?: THREE.BufferGeometry
+        material?: THREE.Material | THREE.Material[]
+      }
+      renderable.geometry?.dispose()
+      const materials = Array.isArray(renderable.material) ? renderable.material : [renderable.material]
+      materials.forEach((material) => material?.dispose())
+    })
+  })
+  customSceneObjects.length = 0
+}
+
 onMounted(() => {
   if (!supportsWebGl() || !container.value) {
     fallback.value = true
     return
   }
 
-  globe = new Globe(container.value)
+  constrainedDevice = detectConstrainedDevice()
+  const useBumpTexture = !constrainedDevice
+
+  globe = new Globe(container.value, {
+    rendererConfig: {
+      alpha: true,
+      antialias: !constrainedDevice,
+      powerPreference: 'high-performance',
+    },
+  })
+  globe.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, constrainedDevice ? 1 : 1.5))
   globe.globeImageUrl(createEarthTexture())
-  globe.bumpImageUrl(createEarthBumpTexture())
+  if (useBumpTexture) {
+    globe.bumpImageUrl(createEarthBumpTexture())
+  }
   globe.backgroundColor('rgba(0,0,0,0)')
   globe.showAtmosphere(true)
   globe.atmosphereAltitude(0.26)
   globe.atmosphereColor('#3d8bff')
-  tuneGlobeMaterial()
-  globe.onPolygonClick((feature: Feature) => {
+  tuneGlobeMaterial(useBumpTexture)
+  globe.onPolygonClick((feature: HistoricalBorderFeature) => {
     const country = getCountryForFeature(feature)
     if (country) {
       emit('select-country', country.id)
@@ -809,7 +984,7 @@ onMounted(() => {
   globe.lineHoverPrecision(5)
 
   const controls = globe.controls()
-  controls.autoRotate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  controls.autoRotate = !constrainedDevice && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
   controls.autoRotateSpeed = 0.18
   controls.enablePan = false
   controls.minDistance = 165
@@ -824,6 +999,13 @@ onMounted(() => {
   resizeObserver = new ResizeObserver(updateSize)
   resizeObserver.observe(container.value)
 
+  visibilityObserver = new IntersectionObserver((entries) => {
+    stageIsVisible = entries.some((entry) => entry.isIntersecting && entry.intersectionRatio > 0)
+    syncAnimationState()
+  }, { threshold: 0.01 })
+  visibilityObserver.observe(container.value)
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+
   const wheelTarget = container.value
   wheelTarget.addEventListener('wheel', handleWheelGuard, { capture: true, passive: true })
   detachWheelGuard = () => wheelTarget.removeEventListener('wheel', handleWheelGuard, { capture: true } as EventListenerOptions)
@@ -832,19 +1014,25 @@ onMounted(() => {
 watch(
   () => [
     props.activeYear,
+    props.selectedCountryIds.join('|'),
+    props.enabledLayers.join('|'),
+  ],
+  () => {
+    ensureHistoricalBorders()
+    scheduleFullSync()
+  },
+)
+
+watch(
+  () => [
     props.highlightedEventId,
     props.language,
     props.selectedArtistId,
-    props.selectedCountryIds.join('|'),
-    props.enabledLayers.join('|'),
     props.timelinePlaying,
     activeInfluenceId.value,
     hoveredInfluenceId.value,
   ],
-  () => {
-    ensureHistoricalBorders()
-    syncGlobe()
-  },
+  scheduleHtmlSync,
 )
 
 watch(
@@ -856,13 +1044,48 @@ watch(
 )
 
 onBeforeUnmount(() => {
+  if (fullSyncFrame !== null) {
+    window.cancelAnimationFrame(fullSyncFrame)
+    fullSyncFrame = null
+  }
+  if (htmlSyncFrame !== null) {
+    window.cancelAnimationFrame(htmlSyncFrame)
+    htmlSyncFrame = null
+  }
+  const idleWindow = window as unknown as { cancelIdleCallback?: (handle: number) => void }
+  if (preloadIdleHandle !== null && idleWindow.cancelIdleCallback) {
+    idleWindow.cancelIdleCallback(preloadIdleHandle)
+    preloadIdleHandle = null
+  }
+  if (preloadTimer !== null) {
+    window.clearTimeout(preloadTimer)
+    preloadTimer = null
+  }
+
   if (resizeObserver) {
     resizeObserver.disconnect()
   }
+  if (visibilityObserver) {
+    visibilityObserver.disconnect()
+  }
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
 
   if (detachWheelGuard) {
     detachWheelGuard()
     detachWheelGuard = null
+  }
+
+  if (globe) {
+    const renderer = globe.renderer()
+    disposeCustomSceneObjects()
+    globe._destructor()
+    renderer.dispose()
+    renderer.forceContextLoss()
+    globe = null
+  }
+
+  if (container.value) {
+    container.value.replaceChildren()
   }
 })
 </script>
@@ -1597,5 +1820,58 @@ onBeforeUnmount(() => {
     display: none;
     animation: none;
   }
+}
+
+/* Keep the globe itself dominant; chrome appears only when it is useful. */
+.mesh-overlay,
+.globe-hint {
+  display: none;
+}
+
+.pin-legend {
+  gap: 0.75rem;
+  padding: 0.5rem 0.65rem;
+  background: rgba(11, 11, 12, 0.78);
+  border: 0;
+  border-left: 1px solid var(--atlas-line);
+  color: var(--atlas-muted);
+  backdrop-filter: blur(10px);
+}
+
+:global(.influence-label) {
+  padding: 0.42rem 0.5rem;
+  background: rgba(17, 17, 19, 0.9);
+  box-shadow: none;
+  backdrop-filter: blur(10px);
+}
+
+:global(.influence-label::before) {
+  height: 1px;
+  background: var(--target-color);
+}
+
+:global(.influence-label:hover),
+:global(.influence-label:focus-visible),
+:global(.influence-label--active) {
+  transform: translate(-50%, -50%);
+  box-shadow: none;
+}
+
+:global(.globe-pin__label) {
+  background: rgba(17, 17, 19, 0.92);
+  border-color: var(--atlas-line);
+  box-shadow: none;
+}
+
+:global(.globe-pin__label--artist-card) {
+  grid-template-columns: 3rem minmax(0, 1fr);
+  width: 14rem;
+  max-width: 14rem;
+}
+
+:global(.globe-pin__label--artist-card img) {
+  width: 3rem;
+  border: 0;
+  border-radius: 3px;
 }
 </style>

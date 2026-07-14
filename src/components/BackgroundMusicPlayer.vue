@@ -466,4 +466,72 @@ onBeforeUnmount(() => {
     width: 100%;
   }
 }
+
+/* Compact player */
+.background-player {
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.95rem 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--atlas-line);
+  border-bottom: 1px solid var(--atlas-line);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.eyebrow {
+  color: var(--atlas-accent);
+  letter-spacing: 0.12em;
+}
+
+.player-title-row h2 {
+  font-size: 1rem;
+  font-weight: 560;
+}
+
+.status-pill {
+  padding: 0;
+  color: var(--atlas-faint);
+  background: transparent;
+  border: 0;
+}
+
+.track-note {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.player-controls {
+  gap: 0.4rem;
+}
+
+.player-button {
+  padding: 0.42rem 0.72rem;
+  border-color: var(--atlas-line);
+  border-radius: 5px;
+  background: transparent;
+}
+
+.player-button.primary {
+  color: #17130d;
+  background: var(--atlas-accent);
+  border-color: var(--atlas-accent);
+}
+
+.player-button.primary:hover:not(:disabled) {
+  color: #17130d;
+  background: #e6c995;
+}
+
+.card-link {
+  padding: 0;
+  color: var(--atlas-accent);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(216, 183, 126, 0.42);
+}
 </style>

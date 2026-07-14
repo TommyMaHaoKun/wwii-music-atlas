@@ -552,4 +552,131 @@ input[type='number'] {
   .controls-row { grid-template-columns: 1fr; }
   .generator-form, .result-panel { padding: 1.15rem; }
 }
+
+/* Focused studio layout */
+.generator-page {
+  width: min(100%, var(--page-width));
+  margin: 0 auto;
+  padding: 7.5rem 1.25rem 4rem;
+}
+
+.generator-hero {
+  max-width: none;
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  letter-spacing: 0.12em;
+}
+
+.generator-hero h1 {
+  max-width: 48rem;
+  font-size: clamp(2.3rem, 4.8vw, 4.25rem);
+  font-weight: 540;
+}
+
+.generator-hero > p {
+  max-width: 42rem;
+  font-size: 0.96rem;
+  line-height: 1.6;
+}
+
+.service-pill {
+  padding: 0.4rem 0;
+  background: transparent;
+  border: 0;
+}
+
+.service-pill.ready > span {
+  box-shadow: none;
+}
+
+.generator-grid {
+  grid-template-columns: minmax(0, 1.1fr) minmax(20rem, 0.9fr);
+  max-width: none;
+  background: transparent;
+  border: 1px solid var(--atlas-line);
+  border-radius: var(--atlas-radius);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.generator-form,
+.result-panel {
+  padding: clamp(1.3rem, 3vw, 2rem);
+}
+
+textarea,
+input[type='number'] {
+  background: #101012;
+  border-color: var(--atlas-line);
+  border-radius: 6px;
+}
+
+textarea:focus,
+input[type='number']:focus {
+  background: #121214;
+  border-color: var(--atlas-accent);
+}
+
+.preset-row button {
+  padding: 0.38rem 0.6rem;
+  color: var(--atlas-muted);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--atlas-line);
+  cursor: pointer;
+}
+
+.preset-row button:hover {
+  color: var(--atlas-accent);
+  border-color: var(--atlas-accent);
+}
+
+.generate-button {
+  min-height: 3rem;
+  color: #17130d;
+  background: var(--atlas-accent);
+  border-radius: 6px;
+}
+
+.result-panel {
+  min-height: 28rem;
+  background: #101012;
+  border-left-color: var(--atlas-line);
+}
+
+.audio-result,
+.waiting-result,
+.empty-result {
+  min-height: 23rem;
+}
+
+.record-art {
+  width: min(10rem, 50vw);
+  background: #171719;
+  box-shadow: none;
+}
+
+.record-art span {
+  background: #7e6744;
+  border-color: var(--atlas-accent);
+}
+
+.archive-mark {
+  padding: 0.75rem 1rem;
+  border-color: var(--atlas-line);
+  font-size: 1.35rem;
+  transform: none;
+}
+
+@media (max-width: 900px) {
+  .generator-page {
+    padding-top: 11.5rem;
+  }
+
+  .generator-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>

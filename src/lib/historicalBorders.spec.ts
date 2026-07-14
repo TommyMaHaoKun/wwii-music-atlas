@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { matchHistoricalCountryId, pickSnapshotYear } from '@/lib/historicalBorders'
+import type { FeatureCollection } from 'geojson'
+import { matchHistoricalCountryId, pickSnapshotYear, selectTrackedHistoricalFeatures } from '@/lib/historicalBorders'
 
 describe('pickSnapshotYear', () => {
   it('uses the 1938 snapshot up to 1944 and 1945 from then on', () => {
@@ -38,5 +39,30 @@ describe('matchHistoricalCountryId', () => {
     expect(matchHistoricalCountryId('Manchuria')).toBeNull()
     expect(matchHistoricalCountryId(null)).toBeNull()
     expect(matchHistoricalCountryId('')).toBeNull()
+  })
+})
+
+describe('selectTrackedHistoricalFeatures', () => {
+  it('keeps only atlas countries and annotates them for constant-time lookup', () => {
+    const collection = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          properties: { NAME: 'Germany (Soviet)' },
+          geometry: { type: 'Polygon', coordinates: [[[0, 0], [1, 0], [0, 0]]] },
+        },
+        {
+          type: 'Feature',
+          properties: { NAME: 'Spain' },
+          geometry: { type: 'Polygon', coordinates: [[[0, 0], [1, 0], [0, 0]]] },
+        },
+      ],
+    } as FeatureCollection
+
+    const features = selectTrackedHistoricalFeatures(collection)
+
+    expect(features).toHaveLength(1)
+    expect(features[0]?.properties.__atlasCountryId).toBe('de')
   })
 })

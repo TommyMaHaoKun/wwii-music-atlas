@@ -539,4 +539,147 @@ p {
     grid-template-columns: 1fr;
   }
 }
+
+/* Minimal archive layout */
+.archive-page {
+  grid-template-columns: 18rem minmax(0, 1fr);
+  gap: 2rem;
+  width: min(100%, var(--page-width));
+  margin: 0 auto;
+  padding: 7rem 1.25rem 3rem;
+}
+
+.route-sidebar,
+.detail-surface {
+  background: transparent;
+  border: 0;
+  backdrop-filter: none;
+}
+
+.route-sidebar {
+  position: sticky;
+  top: 5.5rem;
+  gap: 0.8rem;
+  max-height: calc(100svh - 7rem);
+  overflow: auto;
+  padding: 0 1.5rem 0 0;
+  border-right: 1px solid var(--atlas-line);
+}
+
+.kicker {
+  letter-spacing: 0.12em;
+}
+
+h1 {
+  font-size: clamp(2rem, 3.6vw, 3.25rem);
+  font-weight: 540;
+}
+
+h2 {
+  font-size: clamp(1.65rem, 2.8vw, 2.6rem);
+  font-weight: 540;
+}
+
+.event-index {
+  gap: 0;
+  margin-top: 0.4rem;
+}
+
+.event-index button,
+.affected-list button {
+  border: 0;
+  border-bottom: 1px solid var(--atlas-line);
+  background: transparent;
+}
+
+.event-index button {
+  grid-template-columns: 3rem 1fr;
+  padding: 0.62rem 0;
+}
+
+.event-index button.active {
+  padding-left: 0.55rem;
+  background: var(--atlas-accent-soft);
+  border-color: var(--atlas-line);
+}
+
+.event-index span {
+  color: var(--atlas-accent);
+  font-size: 0.95rem;
+}
+
+.route-main {
+  gap: 1.5rem;
+}
+
+.map-slice {
+  border-color: var(--atlas-line);
+  border-radius: var(--atlas-radius);
+}
+
+.detail-surface {
+  gap: 1rem;
+  padding: 0;
+}
+
+.event-figure img {
+  border: 0;
+  border-radius: 6px;
+}
+
+.detail-section {
+  gap: 0.8rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--atlas-line);
+}
+
+.song-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 1.25rem;
+}
+
+.song-card {
+  padding: 1rem 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--atlas-line);
+}
+
+.linked-artist-grid {
+  gap: 0 1.25rem;
+}
+
+.linked-artist-card {
+  padding: 0.8rem 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--atlas-line);
+}
+
+.linked-artist-card img {
+  border-radius: 4px;
+}
+
+.affected-list button {
+  padding: 0.5rem 0.2rem;
+}
+
+@media (max-width: 900px) {
+  .archive-page {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    padding-top: 11.5rem;
+  }
+
+  .route-sidebar {
+    position: static;
+    max-height: none;
+    padding-right: 0;
+    border-right: 0;
+  }
+
+  .song-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>

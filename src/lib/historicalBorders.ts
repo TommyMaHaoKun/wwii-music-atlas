@@ -1,4 +1,4 @@
-import type { Feature, FeatureCollection, Geometry } from 'geojson'
+import type { Feature, FeatureCollection, MultiPolygon, Polygon, Position } from 'geojson'
 import { publicAssetPath } from '@/lib/publicAssets'
 
 // Period-accurate political borders from the historical-basemaps project
@@ -15,14 +15,102 @@ export interface HistoricalBorderProperties {
   __atlasCountryId: string
 }
 
-export type HistoricalBorderFeature = Feature<Geometry, HistoricalBorderProperties>
+export type HistoricalBorderFeature = Feature<Polygon | MultiPolygon, HistoricalBorderProperties>
 
 const cache = new Map<SnapshotYear, HistoricalBorderFeature[]>()
 const pending = new Map<SnapshotYear, Promise<HistoricalBorderFeature[]>>()
+const SIMPLIFICATION_TOLERANCE_DEGREES = 0.25
 
-// Only the eight countries covered by this atlas need interactive, extruded
-// polygons. The base texture still provides the rest of the world's land and
-// coastline, while this cuts polygon triangulation and ray-casting by ~95%.
+function squaredSegmentDistance(point: Position, start: Position, end: Position) {
+  let x = start[0] ?? 0
+  let y = start[1] ?? 0
+  let dx = (end[0] ?? 0) - x
+  let dy = (end[1] ?? 0) - y
+
+  if (dx !== 0 || dy !== 0) {
+    const projection = (((point[0] ?? 0) - x) * dx + ((point[1] ?? 0) - y) * dy) / (dx * dx + dy * dy)
+    if (projection > 1) {
+      x = end[0] ?? 0
+      y = end[1] ?? 0
+    } else if (projection > 0) {
+      x += dx * projection
+      y += dy * projection
+    }
+  }
+
+  dx = (point[0] ?? 0) - x
+  dy = (point[1] ?? 0) - y
+  return dx * dx + dy * dy
+}
+
+function simplifyRing(ring: Position[], tolerance = SIMPLIFICATION_TOLERANCE_DEGREES) {
+  if (ring.length <= 6) {
+    return ring
+  }
+
+  const first = ring[0]
+  const last = ring[ring.length - 1]
+  const isClosed = first?.[0] === last?.[0] && first?.[1] === last?.[1]
+  const points = isClosed ? ring.slice(0, -1) : ring.slice()
+  if (points.length <= 3) {
+    return ring
+  }
+
+  const keep = new Uint8Array(points.length)
+  keep[0] = 1
+  keep[points.length - 1] = 1
+  const threshold = tolerance * tolerance
+  const stack: Array<[number, number]> = [[0, points.length - 1]]
+
+  while (stack.length) {
+    const [startIndex, endIndex] = stack.pop()!
+    let furthestIndex = -1
+    let furthestDistance = threshold
+
+    for (let index = startIndex + 1; index < endIndex; index += 1) {
+      const distance = squaredSegmentDistance(points[index]!, points[startIndex]!, points[endIndex]!)
+      if (distance > furthestDistance) {
+        furthestDistance = distance
+        furthestIndex = index
+      }
+    }
+
+    if (furthestIndex >= 0) {
+      keep[furthestIndex] = 1
+      stack.push([startIndex, furthestIndex], [furthestIndex, endIndex])
+    }
+  }
+
+  const simplified = points.filter((_, index) => keep[index])
+  if (simplified.length < 3) {
+    return ring
+  }
+
+  if (isClosed) {
+    simplified.push([...simplified[0]!])
+  }
+  return simplified
+}
+
+function simplifyGeometry(geometry: Polygon | MultiPolygon): Polygon | MultiPolygon {
+  if (geometry.type === 'Polygon') {
+    return {
+      ...geometry,
+      coordinates: geometry.coordinates.map((ring) => simplifyRing(ring)),
+    }
+  }
+
+  return {
+    ...geometry,
+    coordinates: geometry.coordinates.map((polygon) =>
+      polygon.map((ring) => simplifyRing(ring)),
+    ),
+  }
+}
+
+// Only the eight countries covered by this atlas need interactive polygons.
+// The base texture still provides the rest of the world's land and coastline;
+// the retained borders are simplified to the resolution visible on the globe.
 export function selectTrackedHistoricalFeatures(collection: FeatureCollection): HistoricalBorderFeature[] {
   return (collection.features ?? []).flatMap((feature) => {
     const properties = feature.properties as { NAME?: string } | null
@@ -31,13 +119,18 @@ export function selectTrackedHistoricalFeatures(collection: FeatureCollection): 
       return []
     }
 
+    if (feature.geometry.type !== 'Polygon' && feature.geometry.type !== 'MultiPolygon') {
+      return []
+    }
+
     return [{
       ...feature,
+      geometry: simplifyGeometry(feature.geometry),
       properties: {
         ...(properties ?? {}),
         __atlasCountryId: countryId,
       },
-    } as HistoricalBorderFeature]
+    }]
   })
 }
 

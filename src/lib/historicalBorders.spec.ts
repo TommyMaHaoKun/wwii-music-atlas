@@ -50,7 +50,13 @@ describe('selectTrackedHistoricalFeatures', () => {
         {
           type: 'Feature',
           properties: { NAME: 'Germany (Soviet)' },
-          geometry: { type: 'Polygon', coordinates: [[[0, 0], [1, 0], [0, 0]]] },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [[
+              [0, 0], [0.2, 0.01], [0.4, 0], [0.6, 0.01], [1, 0],
+              [1, 1], [0.5, 1.01], [0, 1], [0, 0],
+            ]],
+          },
         },
         {
           type: 'Feature',
@@ -64,5 +70,10 @@ describe('selectTrackedHistoricalFeatures', () => {
 
     expect(features).toHaveLength(1)
     expect(features[0]?.properties.__atlasCountryId).toBe('de')
+    expect(features[0]?.geometry.type).toBe('Polygon')
+    if (features[0]?.geometry.type === 'Polygon') {
+      expect(features[0].geometry.coordinates[0]!.length).toBeLessThan(9)
+      expect(features[0].geometry.coordinates[0]![0]).toEqual(features[0].geometry.coordinates[0]!.at(-1))
+    }
   })
 })

@@ -790,7 +790,7 @@ function syncPolygonLayer() {
 
   globe
     .polygonsTransitionDuration(0)
-    .polygonCapCurvatureResolution(constrainedDevice ? 16 : 12)
+    .polygonCapCurvatureResolution(constrainedDevice ? 22 : 18)
     .polygonCapColor((feature: HistoricalBorderFeature) => {
       const country = getCountryForFeature(feature)
       if (!country) {
@@ -801,10 +801,7 @@ function syncPolygonLayer() {
       const isSelected = props.selectedCountryIds.includes(country.id)
       return withAlpha(activeColor, isSelected ? 0.68 : 0.32)
     })
-    .polygonSideColor((feature: HistoricalBorderFeature) => {
-      const country = getCountryForFeature(feature)
-      return country ? withAlpha(getPhaseColor(country), 0.16) : 'rgba(255, 255, 255, 0.02)'
-    })
+    .polygonSideColor(() => 'rgba(255, 255, 255, 0)')
     .polygonStrokeColor((feature: HistoricalBorderFeature) => {
       const country = getCountryForFeature(feature)
       if (!country) {
@@ -815,14 +812,7 @@ function syncPolygonLayer() {
         ? withAlpha(country.color, 0.86)
         : 'rgba(255,255,255,0.075)'
     })
-    .polygonAltitude((feature: HistoricalBorderFeature) => {
-      const country = getCountryForFeature(feature)
-      if (!country) {
-        return 0.002
-      }
-
-      return props.selectedCountryIds.includes(country.id) ? 0.026 : 0.007
-    })
+    .polygonAltitude(0.003)
     .polygonLabel((feature: HistoricalBorderFeature) => {
       const country = getCountryForFeature(feature)
       return country ? buildCountryTooltip(country) : ''
@@ -949,11 +939,11 @@ onMounted(() => {
   globe = new Globe(container.value, {
     rendererConfig: {
       alpha: true,
-      antialias: !constrainedDevice,
+      antialias: false,
       powerPreference: 'high-performance',
     },
   })
-  globe.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, constrainedDevice ? 1 : 1.5))
+  globe.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, constrainedDevice ? 1 : 1.25))
   globe.globeImageUrl(createEarthTexture())
   if (useBumpTexture) {
     globe.bumpImageUrl(createEarthBumpTexture())

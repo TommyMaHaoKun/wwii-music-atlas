@@ -53,8 +53,8 @@ describe('selectTrackedHistoricalFeatures', () => {
           geometry: {
             type: 'Polygon',
             coordinates: [[
-              [0, 0], [0.2, 0.01], [0.4, 0], [0.6, 0.01], [1, 0],
-              [1, 1], [0.5, 1.01], [0, 1], [0, 0],
+              [10, 50], [10.2, 50.01], [10.4, 50], [10.6, 50.01], [11, 50],
+              [11, 51], [10.5, 51.01], [10, 51], [10, 50],
             ]],
           },
         },
@@ -74,6 +74,51 @@ describe('selectTrackedHistoricalFeatures', () => {
     if (features[0]?.geometry.type === 'Polygon') {
       expect(features[0].geometry.coordinates[0]!.length).toBeLessThan(9)
       expect(features[0].geometry.coordinates[0]![0]).toEqual(features[0].geometry.coordinates[0]!.at(-1))
+    }
+  })
+
+  it('removes detached overseas polygons while retaining the core country', () => {
+    const collection = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          properties: { NAME: 'France' },
+          geometry: {
+            type: 'MultiPolygon',
+            coordinates: [
+              [[
+                [2, 46], [4, 46], [4, 48], [2, 48], [2, 46],
+              ]],
+              [[
+                [-62, 15], [-61, 15], [-61, 16], [-62, 16], [-62, 15],
+              ]],
+              [[
+                [2.1, 46.1], [2.15, 46.1], [2.15, 46.15], [2.1, 46.15], [2.1, 46.1],
+              ]],
+            ],
+          },
+        },
+        {
+          type: 'Feature',
+          properties: { NAME: 'Italy' },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [[
+              [45, -10], [46, -10], [46, -9], [45, -9], [45, -10],
+            ]],
+          },
+        },
+      ],
+    } as FeatureCollection
+
+    const features = selectTrackedHistoricalFeatures(collection)
+
+    expect(features).toHaveLength(1)
+    expect(features[0]?.properties.__atlasCountryId).toBe('fr')
+    expect(features[0]?.geometry.type).toBe('MultiPolygon')
+    if (features[0]?.geometry.type === 'MultiPolygon') {
+      expect(features[0].geometry.coordinates).toHaveLength(1)
     }
   })
 })

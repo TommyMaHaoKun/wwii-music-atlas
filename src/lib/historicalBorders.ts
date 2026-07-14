@@ -20,6 +20,104 @@ export type HistoricalBorderFeature = Feature<Polygon | MultiPolygon, Historical
 const cache = new Map<SnapshotYear, HistoricalBorderFeature[]>()
 const pending = new Map<SnapshotYear, Promise<HistoricalBorderFeature[]>>()
 const SIMPLIFICATION_TOLERANCE_DEGREES = 0.25
+const MIN_COMPONENT_BOUNDS_AREA_SQUARE_DEGREES = 0.1
+
+interface GeographicBounds {
+  minLongitude: number
+  maxLongitude: number
+  minLatitude: number
+  maxLatitude: number
+}
+
+// Historical-basemaps groups some overseas colonies and remote islands under
+// their ruling country's NAME. Keep only polygons touching the country's core
+// region so those detached pieces do not appear as unexplained colour blocks.
+const CORE_COUNTRY_BOUNDS: Record<string, GeographicBounds[]> = {
+  us: [
+    { minLongitude: -170, maxLongitude: -60, minLatitude: 20, maxLatitude: 72 },
+  ],
+  uk: [
+    { minLongitude: -11, maxLongitude: 3, minLatitude: 49, maxLatitude: 61 },
+  ],
+  de: [
+    { minLongitude: 5, maxLongitude: 16, minLatitude: 47, maxLatitude: 56 },
+  ],
+  su: [
+    { minLongitude: 18, maxLongitude: 180, minLatitude: 35, maxLatitude: 82 },
+    { minLongitude: -180, maxLongitude: -165, minLatitude: 50, maxLatitude: 72 },
+  ],
+  fr: [
+    { minLongitude: -6, maxLongitude: 10, minLatitude: 41, maxLatitude: 52 },
+  ],
+  it: [
+    { minLongitude: 6, maxLongitude: 20, minLatitude: 35, maxLatitude: 48 },
+  ],
+  jp: [
+    { minLongitude: 128, maxLongitude: 146, minLatitude: 30, maxLatitude: 46 },
+  ],
+  cn: [
+    { minLongitude: 73, maxLongitude: 135, minLatitude: 18, maxLatitude: 54 },
+  ],
+}
+
+function isPositionInBounds(position: Position, bounds: GeographicBounds) {
+  const [longitude, latitude] = position
+  return longitude >= bounds.minLongitude
+    && longitude <= bounds.maxLongitude
+    && latitude >= bounds.minLatitude
+    && latitude <= bounds.maxLatitude
+}
+
+function polygonTouchesCoreRegion(polygon: Position[][], countryId: string) {
+  const bounds = CORE_COUNTRY_BOUNDS[countryId] ?? []
+  return polygon[0]?.some((position) =>
+    bounds.some((region) => isPositionInBounds(position, region)),
+  ) ?? false
+}
+
+function polygonIsLargeEnoughToRender(polygon: Position[][]) {
+  const outerRing = polygon[0]
+  if (!outerRing?.length) {
+    return false
+  }
+
+  let minLongitude = Infinity
+  let maxLongitude = -Infinity
+  let minLatitude = Infinity
+  let maxLatitude = -Infinity
+
+  for (const [longitude, latitude] of outerRing) {
+    minLongitude = Math.min(minLongitude, longitude)
+    maxLongitude = Math.max(maxLongitude, longitude)
+    minLatitude = Math.min(minLatitude, latitude)
+    maxLatitude = Math.max(maxLatitude, latitude)
+  }
+
+  return (maxLongitude - minLongitude) * (maxLatitude - minLatitude)
+    >= MIN_COMPONENT_BOUNDS_AREA_SQUARE_DEGREES
+}
+
+function shouldRetainPolygon(polygon: Position[][], countryId: string) {
+  return polygonTouchesCoreRegion(polygon, countryId)
+    && polygonIsLargeEnoughToRender(polygon)
+}
+
+function retainCoreCountryGeometry(
+  geometry: Polygon | MultiPolygon,
+  countryId: string,
+): Polygon | MultiPolygon | null {
+  if (geometry.type === 'Polygon') {
+    return shouldRetainPolygon(geometry.coordinates, countryId) ? geometry : null
+  }
+
+  const coordinates = geometry.coordinates.filter((polygon) =>
+    shouldRetainPolygon(polygon, countryId),
+  )
+
+  return coordinates.length > 0
+    ? { ...geometry, coordinates }
+    : null
+}
 
 function squaredSegmentDistance(point: Position, start: Position, end: Position) {
   let x = start[0] ?? 0
@@ -123,9 +221,14 @@ export function selectTrackedHistoricalFeatures(collection: FeatureCollection): 
       return []
     }
 
+    const coreGeometry = retainCoreCountryGeometry(feature.geometry, countryId)
+    if (!coreGeometry) {
+      return []
+    }
+
     return [{
       ...feature,
-      geometry: simplifyGeometry(feature.geometry),
+      geometry: simplifyGeometry(coreGeometry),
       properties: {
         ...(properties ?? {}),
         __atlasCountryId: countryId,

@@ -4,6 +4,22 @@ globalThis.__wwiiMusicRequestHistory = requestHistory
 const MIN_DURATION = 10
 const MAX_DURATION = 180
 const GENERATE_COOLDOWN_MS = 20_000
+const ACESTEP_MODEL = 'acestep-v15-xl-sft'
+const GENERATION_MODES = new Set(['auto', 'custom', 'instrumental'])
+const VOCAL_LANGUAGES = new Set(['en', 'de', 'zh', 'fr', 'es', 'it', 'pl', 'ru', 'ja', 'ko'])
+
+const LANGUAGE_NAMES = {
+  en: 'English',
+  de: 'German',
+  zh: 'Chinese',
+  fr: 'French',
+  es: 'Spanish',
+  it: 'Italian',
+  pl: 'Polish',
+  ru: 'Russian',
+  ja: 'Japanese',
+  ko: 'Korean',
+}
 
 function sendJson(res, status, data) {
   res.status(status).json(data)
@@ -79,13 +95,19 @@ async function health(res) {
   const healthPayload = await healthResponse.json()
   const loraPayload = await loraResponse.json()
   const modelsInitialized = Boolean(healthPayload?.data?.models_initialized)
+  const llmInitialized = Boolean(healthPayload?.data?.llm_initialized)
   const loraLoaded = Boolean(loraPayload?.data?.lora_loaded && loraPayload?.data?.use_lora)
+  const loadedModel = healthPayload?.data?.loaded_model || null
 
   sendJson(res, 200, {
     ready: modelsInitialized && loraLoaded,
+    autoLyricsReady: modelsInitialized && loraLoaded && llmInitialized,
     modelsInitialized,
+    llmInitialized,
     loraLoaded,
     adapter: loraPayload?.data?.active_adapter || null,
+    model: loadedModel,
+    lyricModel: healthPayload?.data?.loaded_lm_model || null,
   })
 }
 
@@ -94,6 +116,8 @@ async function generate(req, res, body) {
 
   const prompt = String(body.prompt || '').trim()
   const lyrics = String(body.lyrics || '').trim()
+  const mode = String(body.mode || (lyrics ? 'custom' : 'auto')).trim().toLowerCase()
+  const vocalLanguage = String(body.vocalLanguage || 'en').trim().toLowerCase()
   const duration = Math.min(MAX_DURATION, Math.max(MIN_DURATION, Number(body.duration) || MIN_DURATION))
   const bpm = Math.min(200, Math.max(50, Number(body.bpm) || 112))
 
@@ -105,23 +129,50 @@ async function generate(req, res, body) {
     return sendJson(res, 400, { error: 'Lyrics are too long' })
   }
 
+  if (!GENERATION_MODES.has(mode)) {
+    return sendJson(res, 400, { error: 'Invalid generation mode' })
+  }
+
+  if (!VOCAL_LANGUAGES.has(vocalLanguage)) {
+    return sendJson(res, 400, { error: 'Unsupported vocal language' })
+  }
+
+  if (mode === 'custom' && !lyrics) {
+    return sendJson(res, 400, { error: 'Custom lyrics mode requires lyrics' })
+  }
+
+  const isAutoLyrics = mode === 'auto'
+  const isInstrumental = mode === 'instrumental'
+  const languageName = LANGUAGE_NAMES[vocalLanguage]
+  const sampleQuery = isAutoLyrics
+    ? `${prompt}. Write and sing completely original ${languageName} lyrics. `
+      + `Aim for approximately ${duration} seconds at ${bpm} BPM. `
+      + 'Return a complete song structure with verses and a memorable chorus.'
+    : ''
+
   const response = await aceFetch('/release_task', {
     method: 'POST',
     body: JSON.stringify({
       prompt,
-      lyrics: lyrics || '[Instrumental]',
+      lyrics: isInstrumental ? '[Instrumental]' : lyrics,
       thinking: false,
+      sample_mode: isAutoLyrics,
+      sample_query: sampleQuery,
+      lock_requested_metadata: isAutoLyrics,
+      lm_backend: 'pt',
       use_cot_caption: false,
       use_cot_language: false,
-      vocal_language: 'en',
-      model: 'acestep-v15-turbo',
+      vocal_language: isInstrumental ? 'unknown' : vocalLanguage,
+      model: ACESTEP_MODEL,
       audio_duration: duration,
       batch_size: 1,
-      inference_steps: 8,
+      inference_steps: 50,
+      guidance_scale: 7,
+      infer_method: 'ode',
+      shift: 1,
       audio_format: 'mp3',
-      mp3_bitrate: '128k',
       bpm,
-      time_signature: '4',
+      time_signature: '4/4',
       use_random_seed: true,
     }),
   })
@@ -162,6 +213,11 @@ async function status(res, body) {
     audioPath: track.file,
     seed: track.seed_value || null,
     generationInfo: track.generation_info || null,
+    lyrics: track.lyrics || track.metas?.lyrics || '',
+    caption: track.prompt || track.metas?.prompt || '',
+    metadata: track.metas || null,
+    model: track.dit_model || ACESTEP_MODEL,
+    lyricModel: track.lm_model || null,
   })
 }
 

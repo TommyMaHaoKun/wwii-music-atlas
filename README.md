@@ -5,8 +5,8 @@
 ## 项目形态
 
 - 技术栈：Vue 3、Vite、Vue Router、Three.js / globe.gl。
-- 部署形态：纯前端静态站点，构建后只需要托管 `dist/` 目录。
-- 运行依赖：上线后不需要后端服务、不需要数据库、不需要 API Key。
+- 部署形态：Vue 静态前端加一个 `/api/music` Serverless 代理；音乐生成页需要连接自托管 ACE-Step 服务。
+- 运行依赖：地图页面不依赖后端；音乐生成页需要 XL-SFT、项目 LoRA 和 ACE-Step 5Hz LM GPU 服务。
 - 路由模式：HTML5 history 模式，服务器需要配置 SPA 回退，否则刷新 `/events`、`/countries` 等页面会出现 404。
 
 ## 环境要求
@@ -24,6 +24,21 @@
 npm install
 npm run dev
 ```
+
+如需测试音乐生成页，复制 `.env.example` 为 `.env.local`，填写：
+
+```text
+ACESTEP_API_BASE=https://你的-ACE-Step-服务地址
+ACESTEP_API_KEY=服务端密钥
+```
+
+浏览器不会接触该密钥；`/api/music` 只在服务器端读取它。网站支持三种生成方式：
+
+- 自动写词并演唱：ACE-Step 5Hz LM 自动生成歌词和歌曲结构。
+- 使用自己的歌词：直接把用户歌词交给 XL-SFT。
+- 纯音乐：显式传入 `[Instrumental]`。
+
+三个模式都使用 `acestep-v15-xl-sft` 和本项目训练的 LoRA，不调用外部付费歌词 API。
 
 开发服务器默认由 Vite 启动，终端会输出本地访问地址。
 
@@ -165,7 +180,7 @@ npm run build:pages
 
 ## 注意事项
 
-- 本项目是静态网站，运行时不读取服务器环境变量；`BASE_PATH` 只在构建时生效。
+- 地图主体仍可作为静态网站运行；`/generate` 的 Serverless 代理会在运行时读取 `ACESTEP_API_BASE` 和 `ACESTEP_API_KEY`。`BASE_PATH` 只在构建时生效。
 - 每次修改部署路径后，都需要使用新的 `BASE_PATH` 重新构建。
 - 建议对 `index.html` 使用较短缓存或不缓存，对带 hash 的 `assets/` 文件使用长期缓存。
 - 服务器或 CDN 需要正确返回常见 MIME 类型，例如 `.js`、`.css`、`.webp`、`.svg`、`.ogg`、`.mp3`。

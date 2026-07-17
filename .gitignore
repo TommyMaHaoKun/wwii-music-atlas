@@ -36,3 +36,4 @@ ww2_music_data_project/
 wwii-music-atlas-intro/
 
 .vercel
+.env*

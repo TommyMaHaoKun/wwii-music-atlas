@@ -3,31 +3,60 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useAtlasState } from '@/composables/useAtlasState'
 
 type GenerationState = 'idle' | 'submitting' | 'queued' | 'running' | 'succeeded' | 'failed'
+type GenerationMode = 'auto' | 'custom' | 'instrumental'
 
 interface StatusResponse {
   status: 'running' | 'succeeded' | 'failed'
   audioPath?: string
   seed?: string | null
   generationInfo?: string | null
+  lyrics?: string
+  caption?: string
+  metadata?: Record<string, unknown> | null
   error?: string
 }
 
 const atlas = useAtlasState()
 const prompt = ref('1940s wartime orchestral march, solemn brass, military snare drums, vintage mono recording, patriotic and cinematic, historically evocative')
 const lyrics = ref('')
+const generationMode = ref<GenerationMode>('auto')
+const vocalLanguage = ref('en')
 const duration = ref(30)
 const bpm = ref(112)
 const state = ref<GenerationState>('idle')
 const serviceReady = ref(false)
+const autoLyricsReady = ref(false)
 const serviceMessage = ref('')
 const errorMessage = ref('')
 const audioUrl = ref('')
 const seed = ref<string | null>(null)
 const taskId = ref('')
+const generatedLyrics = ref('')
+const generatedCaption = ref('')
+const actualDuration = ref<number | null>(null)
 let cancelled = false
 
 const isZh = computed(() => atlas.language.value === 'zh')
 const isBusy = computed(() => ['submitting', 'queued', 'running'].includes(state.value))
+const canGenerate = computed(() => {
+  if (isBusy.value || !serviceReady.value || prompt.value.length < 8) return false
+  if (generationMode.value === 'auto' && !autoLyricsReady.value) return false
+  if (generationMode.value === 'custom' && !lyrics.value.trim()) return false
+  return true
+})
+
+const languageOptions = [
+  { value: 'en', zh: '英语', en: 'English' },
+  { value: 'de', zh: '德语', en: 'German' },
+  { value: 'zh', zh: '中文', en: 'Chinese' },
+  { value: 'fr', zh: '法语', en: 'French' },
+  { value: 'es', zh: '西班牙语', en: 'Spanish' },
+  { value: 'it', zh: '意大利语', en: 'Italian' },
+  { value: 'pl', zh: '波兰语', en: 'Polish' },
+  { value: 'ru', zh: '俄语', en: 'Russian' },
+  { value: 'ja', zh: '日语', en: 'Japanese' },
+  { value: 'ko', zh: '韩语', en: 'Korean' },
+]
 
 const presets = [
   {
@@ -73,11 +102,15 @@ async function checkService() {
     if (!response.ok) throw new Error('Health check failed')
     const data = await response.json()
     serviceReady.value = Boolean(data.ready)
+    autoLyricsReady.value = Boolean(data.autoLyricsReady)
     serviceMessage.value = data.ready
-      ? isZh.value ? '生成服务在线 · 声音特征模型已加载' : 'Generation service online · sound-feature model loaded'
+      ? autoLyricsReady.value
+        ? isZh.value ? 'XL-SFT、WWII LoRA 与自动写词模型均已就绪' : 'XL-SFT, WWII LoRA and lyric model are ready'
+        : isZh.value ? '音乐模型已就绪，自动写词模型仍在启动' : 'Music model ready; lyric model is still starting'
       : isZh.value ? '模型正在启动，请稍候' : 'The model is starting'
   } catch {
     serviceReady.value = false
+    autoLyricsReady.value = false
     serviceMessage.value = isZh.value ? '生成服务暂时离线' : 'Generation service is offline'
   }
 }
@@ -96,6 +129,10 @@ async function pollTask(id: string) {
     if (data.status === 'succeeded' && data.audioPath) {
       audioUrl.value = `/api/music?file=${encodeURIComponent(data.audioPath)}`
       seed.value = data.seed || null
+      generatedLyrics.value = data.lyrics || ''
+      generatedCaption.value = data.caption || ''
+      const resultDuration = Number(data.metadata?.duration)
+      actualDuration.value = Number.isFinite(resultDuration) && resultDuration > 0 ? resultDuration : duration.value
       state.value = 'succeeded'
       return
     }
@@ -106,10 +143,13 @@ async function pollTask(id: string) {
 }
 
 async function generate() {
-  if (isBusy.value || !serviceReady.value) return
+  if (!canGenerate.value) return
   errorMessage.value = ''
   audioUrl.value = ''
   seed.value = null
+  generatedLyrics.value = ''
+  generatedCaption.value = ''
+  actualDuration.value = null
   state.value = 'submitting'
 
   try {
@@ -119,7 +159,9 @@ async function generate() {
       body: JSON.stringify({
         action: 'generate',
         prompt: prompt.value,
-        lyrics: lyrics.value,
+        mode: generationMode.value,
+        lyrics: generationMode.value === 'custom' ? lyrics.value : '',
+        vocalLanguage: vocalLanguage.value,
         duration: duration.value,
         bpm: bpm.value,
       }),
@@ -178,10 +220,40 @@ onBeforeUnmount(() => {
 
         <div class="field-group">
           <div class="field-heading">
-            <label for="music-lyrics">{{ isZh ? '歌词（可选）' : 'Lyrics (optional)' }}</label>
-            <span>{{ isZh ? '留空即纯音乐' : 'Leave blank for instrumental' }}</span>
+            <label>{{ isZh ? '生成方式' : 'Generation mode' }}</label>
+            <span>{{ isZh ? '全部在你的服务器上运行' : 'Runs entirely on your server' }}</span>
           </div>
-          <textarea id="music-lyrics" v-model="lyrics" maxlength="3000" rows="4" :placeholder="isZh ? '可输入中文、英文或其他语言歌词' : 'Enter lyrics in any language'" />
+          <div class="mode-row" role="radiogroup" :aria-label="isZh ? '生成方式' : 'Generation mode'">
+            <button type="button" :class="{ active: generationMode === 'auto' }" role="radio" :aria-checked="generationMode === 'auto'" @click="generationMode = 'auto'">
+              {{ isZh ? '自动写词并演唱' : 'Write lyrics & sing' }}
+            </button>
+            <button type="button" :class="{ active: generationMode === 'custom' }" role="radio" :aria-checked="generationMode === 'custom'" @click="generationMode = 'custom'">
+              {{ isZh ? '使用我的歌词' : 'Use my lyrics' }}
+            </button>
+            <button type="button" :class="{ active: generationMode === 'instrumental' }" role="radio" :aria-checked="generationMode === 'instrumental'" @click="generationMode = 'instrumental'">
+              {{ isZh ? '纯音乐' : 'Instrumental' }}
+            </button>
+          </div>
+        </div>
+
+        <div v-if="generationMode !== 'instrumental'" class="field-group">
+          <div class="field-heading">
+            <label for="vocal-language">{{ isZh ? '歌词语言' : 'Lyric language' }}</label>
+            <span v-if="generationMode === 'auto'">{{ isZh ? '由 ACE-Step 5Hz LM 创作' : 'Written by ACE-Step 5Hz LM' }}</span>
+          </div>
+          <select id="vocal-language" v-model="vocalLanguage">
+            <option v-for="language in languageOptions" :key="language.value" :value="language.value">
+              {{ isZh ? language.zh : language.en }}
+            </option>
+          </select>
+        </div>
+
+        <div v-if="generationMode === 'custom'" class="field-group">
+          <div class="field-heading">
+            <label for="music-lyrics">{{ isZh ? '你的歌词' : 'Your lyrics' }}</label>
+            <span>{{ lyrics.length }}/3000</span>
+          </div>
+          <textarea id="music-lyrics" v-model="lyrics" maxlength="3000" rows="6" required :placeholder="isZh ? '使用 [Verse]、[Chorus] 等标签组织歌词' : 'Use labels such as [Verse] and [Chorus] to structure the lyrics'" />
         </div>
 
         <div class="controls-row">
@@ -195,12 +267,12 @@ onBeforeUnmount(() => {
           </label>
         </div>
 
-        <button class="generate-button" type="submit" :disabled="isBusy || !serviceReady || prompt.length < 8">
+        <button class="generate-button" type="submit" :disabled="!canGenerate">
           <span v-if="isBusy" class="spinner"></span>
           {{ isBusy ? stateLabel : (isZh ? '开始声音特征实验' : 'Run sound-feature experiment') }}
         </button>
         <p class="form-note">
-          {{ isZh ? '当前每次生成 1 首，时长 10 秒至 3 分钟。请勿提交违法、仇恨或侵权内容。' : 'One track per request, from 10 seconds to 3 minutes. Do not submit illegal, hateful, or infringing content.' }}
+          {{ isZh ? '每次生成 1 首，时长 10 秒至 3 分钟。自动写词使用服务器上的开源模型，不调用外部付费 API。' : 'One track per request, from 10 seconds to 3 minutes. Automatic lyrics use the self-hosted open model, not a paid external API.' }}
         </p>
       </form>
 
@@ -213,15 +285,20 @@ onBeforeUnmount(() => {
         <div v-if="audioUrl" class="audio-result">
           <div class="record-art" aria-hidden="true"><span></span></div>
           <h2>{{ isZh ? '现代生成结果' : 'Modern generated result' }}</h2>
-          <p>{{ duration }}s · {{ bpm }} BPM<span v-if="seed"> · Seed {{ seed }}</span></p>
+          <p>{{ Math.round(actualDuration || duration) }}s · {{ bpm }} BPM<span v-if="seed"> · Seed {{ seed }}</span></p>
           <audio :src="audioUrl" controls autoplay preload="metadata" />
           <a :href="audioUrl" download="wwii-ai-music.mp3">{{ isZh ? '下载 MP3' : 'Download MP3' }}</a>
+          <details v-if="generatedLyrics && generatedLyrics !== '[Instrumental]'" class="generated-lyrics">
+            <summary>{{ isZh ? '查看生成的歌词与曲目说明' : 'View generated lyrics and description' }}</summary>
+            <p v-if="generatedCaption">{{ generatedCaption }}</p>
+            <pre>{{ generatedLyrics }}</pre>
+          </details>
         </div>
 
         <div v-else-if="isBusy" class="waiting-result">
           <div class="wave-bars" aria-hidden="true"><i v-for="n in 9" :key="n"></i></div>
           <h2>{{ stateLabel }}</h2>
-          <p>{{ isZh ? '通常只需数秒，请保持页面打开。' : 'This normally takes only a few seconds. Keep this page open.' }}</p>
+          <p>{{ isZh ? '自动写词和高质量音乐生成可能需要约一分钟，请保持页面打开。' : 'Lyric writing and high-quality generation may take about a minute. Keep this page open.' }}</p>
         </div>
 
         <div v-else class="empty-result">
@@ -377,7 +454,8 @@ onBeforeUnmount(() => {
 }
 
 textarea,
-input[type='number'] {
+input[type='number'],
+select {
   width: 100%;
   color: var(--atlas-text);
   background: rgba(255, 255, 255, 0.035);
@@ -395,7 +473,8 @@ textarea {
 }
 
 textarea:focus,
-input[type='number']:focus {
+input[type='number']:focus,
+select:focus {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(41, 151, 255, 0.7);
 }
@@ -412,6 +491,31 @@ input[type='number']:focus {
   background: rgba(41, 151, 255, 0.08);
   border: 1px solid rgba(41, 151, 255, 0.25);
   cursor: pointer;
+}
+
+.mode-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.mode-row button {
+  min-height: 2.7rem;
+  padding: 0.55rem 0.65rem;
+  color: rgba(255, 255, 255, 0.68);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--atlas-line);
+  cursor: pointer;
+}
+
+.mode-row button.active {
+  color: var(--atlas-accent);
+  background: rgba(220, 166, 111, 0.08);
+  border-color: var(--atlas-accent);
+}
+
+select {
+  padding: 0.7rem 0.8rem;
 }
 
 .controls-row {
@@ -531,6 +635,37 @@ input[type='number'] {
   text-underline-offset: 0.25rem;
 }
 
+.generated-lyrics {
+  width: min(100%, 30rem);
+  margin-top: 1rem;
+  color: var(--atlas-muted);
+  text-align: left;
+}
+
+.generated-lyrics summary {
+  color: var(--atlas-accent);
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+
+.generated-lyrics p {
+  margin: 0.8rem 0;
+  line-height: 1.55;
+}
+
+.generated-lyrics pre {
+  max-height: 18rem;
+  overflow: auto;
+  padding: 0.9rem;
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--atlas-line);
+  font-family: inherit;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
 .archive-mark {
   padding: 1rem 1.3rem;
   color: rgba(255, 255, 255, 0.35);
@@ -578,6 +713,7 @@ input[type='number'] {
 
 @media (max-width: 560px) {
   .controls-row { grid-template-columns: 1fr; }
+  .mode-row { grid-template-columns: 1fr; }
   .generator-form, .result-panel { padding: 1.15rem; }
 }
 
@@ -635,14 +771,16 @@ input[type='number'] {
 }
 
 textarea,
-input[type='number'] {
+input[type='number'],
+select {
   background: #101012;
   border-color: var(--atlas-line);
   border-radius: 6px;
 }
 
 textarea:focus,
-input[type='number']:focus {
+input[type='number']:focus,
+select:focus {
   background: #121214;
   border-color: var(--atlas-accent);
 }
